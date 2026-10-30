@@ -423,7 +423,7 @@ function passes(t, forProj){
   if(f.kind === 'mine' && t.personId !== 'me') return false;
   if(f.kind === 'claim' && !(t.personId !== 'me' || t.waiting)) return false;
   if(!forProj && (f.programId || f.projectId)){
-    const pr = S.projects.find(p => p.id === t.projectId), pgId = pr ? pr.programId : t.programId;
+    const pr = S.projects.find(p => p.id === t.projectId), pgId = taskProgramId(t);
     if(!pgId) return false;
     if(f.programId && pgId !== f.programId) return false;
     if(f.projectId && (!pr || pr.id !== f.projectId)) return false;
@@ -435,7 +435,11 @@ const person = id => S.people.find(p => p.id === id) || S.people[0];
 const project = id => S.projects.find(p => p.id === id);
 const tema = id => S.temas.find(m => m.id === id);
 const program = id => S.programs.find(g => g.id === id);
-function pcolor(t){ const pr = project(t.projectId), pg = pr ? program(pr.programId) : program(t.programId); return pg ? pg.color : '#c58aa0'; }
+function taskProgramId(t){
+  const pr = project(t.projectId); if(pr) return pr.programId;
+  return t.programId || ((tema(t.temaId) || {}).programId) || null;
+}
+function pcolor(t){ const pg = program(taskProgramId(t)); return pg ? pg.color : '#c58aa0'; }
 function temaWhere(m){ return m.projectId ? ((project(m.projectId) || {}).name || '') : m.programId ? ((program(m.programId) || {}).name || '') + ' · transversal' : 'Global'; }
 function fixProg(t){ if(t.projectId) t.programId = null; }
 function addTema(name, projectId, programId){
@@ -460,7 +464,11 @@ function temaChip(t){
 }
 function projChip(t){
   const pr = project(t.projectId);
-  if(!pr) return `<button class="chip noproj" data-act="proj" aria-label="Sin proyecto: asignar" title="Sin proyecto · clic para asignar">proyecto</button>`;
+  if(!pr){
+    const pg = program(taskProgramId(t));
+    if(!pg) return `<button class="chip noproj" data-act="proj" aria-label="Sin proyecto: asignar" title="Sin proyecto · clic para asignar">proyecto</button>`;
+    return `<button class="chip proj" data-act="proj" style="background:color-mix(in srgb,${pg.color} 18%,var(--panel));color:color-mix(in srgb,${pg.color} 70%,var(--text))" title="${esc(pg.name)} · sin proyecto (clic para asignar)">${esc(pg.name)}</button>`;
+  }
   const pg = S.programs.find(g => g.id === pr.programId), c = pg ? pg.color : '#6b7889';
   return `<button class="chip proj" data-act="proj" style="background:color-mix(in srgb,${c} 18%,var(--panel));color:color-mix(in srgb,${c} 70%,var(--text))" title="${esc((pg ? pg.name + ' · ' : '') + pr.name)}">${esc(pr.name)}</button>`;
 }
