@@ -279,9 +279,13 @@ function normalize(d){
     if(m.programId && !x.programs.some(g => g.id === m.programId)) m.programId = null;
   });
   x.tasks = d.tasks.map((t,i) => Object.assign({
-    id:uid('t'),title:'',personId:'me',projectId:null,temaId:null,type:'hacer',date:today(),waiting:false,remindOn:null,
+    id:uid('t'),title:'',personId:'me',projectId:null,programId:null,temaId:null,type:'hacer',date:today(),waiting:false,remindOn:null,
     note:'',order:i,done:false,doneAt:null,createdAt:new Date().toISOString()}, t, t.type === 'urgente' ? {} : {type:'hacer'}));
-  x.tasks.forEach(t => { fixOwner(t); if(t.temaId && !x.temas.some(m => m.id === t.temaId)) t.temaId = null; });
+  x.tasks.forEach(t => {
+    fixOwner(t);
+    if(t.temaId && !x.temas.some(m => m.id === t.temaId)) t.temaId = null;
+    if(t.projectId || !x.programs.some(g => g.id === t.programId)) t.programId = null;
+  });
   return x;
 }
 // Una tarea de otra persona (no urgente) siempre está en espera hasta su fecha de reclamo.
@@ -419,10 +423,10 @@ function passes(t, forProj){
   if(f.kind === 'mine' && t.personId !== 'me') return false;
   if(f.kind === 'claim' && !(t.personId !== 'me' || t.waiting)) return false;
   if(!forProj && (f.programId || f.projectId)){
-    const pr = S.projects.find(p => p.id === t.projectId);
-    if(!pr) return false;
-    if(f.programId && pr.programId !== f.programId) return false;
-    if(f.projectId && pr.id !== f.projectId) return false;
+    const pr = S.projects.find(p => p.id === t.projectId), pgId = pr ? pr.programId : t.programId;
+    if(!pgId) return false;
+    if(f.programId && pgId !== f.programId) return false;
+    if(f.projectId && (!pr || pr.id !== f.projectId)) return false;
   }
   if(f.q && !norm(t.title + ' ' + (t.note || '') + ' ' + ((tema(t.temaId) || {}).name || '')).includes(norm(f.q))) return false;
   return true;
@@ -431,8 +435,9 @@ const person = id => S.people.find(p => p.id === id) || S.people[0];
 const project = id => S.projects.find(p => p.id === id);
 const tema = id => S.temas.find(m => m.id === id);
 const program = id => S.programs.find(g => g.id === id);
-function pcolor(t){ const pr = project(t.projectId), pg = pr && program(pr.programId); return pg ? pg.color : '#c58aa0'; }
+function pcolor(t){ const pr = project(t.projectId), pg = pr ? program(pr.programId) : program(t.programId); return pg ? pg.color : '#c58aa0'; }
 function temaWhere(m){ return m.projectId ? ((project(m.projectId) || {}).name || '') : m.programId ? ((program(m.programId) || {}).name || '') + ' · transversal' : 'Global'; }
+function fixProg(t){ if(t.projectId) t.programId = null; }
 function addTema(name, projectId, programId){
   const m = {id:uid('m'), programId: projectId ? (project(projectId) || {}).programId || null : (programId || null), projectId: projectId || null, name:name.trim(), note:''};
   S.temas.push(m); save(); return m;
@@ -554,9 +559,9 @@ function renderProyectos(td){
   };
   const f = UI.filter;
   let html = '';
-  if(!f.programId) html += `<div class="band"><div class="band-h"><i style="background:var(--line2)"></i>Global</div><div class="board">${block('g','Global','','#9a9a95',true,S.temas.filter(m => !m.programId && !m.projectId),vis.filter(t => !t.projectId && !t.temaId))}</div></div>`;
+  if(!f.programId) html += `<div class="band"><div class="band-h"><i style="background:var(--line2)"></i>Global</div><div class="board">${block('g','Global','','#9a9a95',true,S.temas.filter(m => !m.programId && !m.projectId),vis.filter(t => !t.projectId && !t.temaId && !t.programId))}</div></div>`;
   S.programs.filter(g => !f.programId || f.programId === g.id).forEach(g => {
-    let blocks = block('pg:' + g.id, g.name, 'transversal', g.color, true, S.temas.filter(m => !m.projectId && m.programId === g.id), []);
+    let blocks = block('pg:' + g.id, g.name, 'transversal', g.color, true, S.temas.filter(m => !m.projectId && m.programId === g.id), vis.filter(t => !t.projectId && !t.temaId && t.programId === g.id));
     S.projects.filter(p => p.programId === g.id).forEach(p => {
       blocks += block('pj:' + p.id, p.name, '', g.color, false, S.temas.filter(m => m.projectId === p.id), vis.filter(t => t.projectId === p.id && !t.temaId));
     });
@@ -752,10 +757,10 @@ function moveInToday(id, how){
 }
 function moveToBlock(id, bkey, temaId){
   const t = taskById(id); if(!t) return;
-  if(temaId){ const m = tema(temaId); if(!m) return; t.temaId = m.id; t.projectId = m.projectId || null; }
-  else if(bkey.startsWith('pj:')){ t.projectId = bkey.slice(3); t.temaId = null; }
-  else if(bkey === 'g'){ t.projectId = null; t.temaId = null; }
-  else { toast('Suéltala sobre un tema de este bloque'); return; }
+  if(temaId){ const m = tema(temaId); if(!m) return; t.temaId = m.id; t.projectId = m.projectId || null; t.programId = null; }
+  else if(bkey.startsWith('pj:')){ t.projectId = bkey.slice(3); t.temaId = null; t.programId = null; }
+  else if(bkey.startsWith('pg:')){ t.projectId = null; t.temaId = null; t.programId = bkey.slice(3); }
+  else { t.projectId = null; t.temaId = null; t.programId = null; }
   UI.sel = id; commit();
 }
 function dropTo(id, col, beforeId){
@@ -781,11 +786,11 @@ function createFromLine(text, toToday){
   const r = resolve(p, null);
   if(r.bad.length){ toast('No existe: ' + r.bad.join(' ') + ' · elígelo en el desplegable'); return false; }
   if(!p.title){ toast('Falta el título'); return false; }
-  const t = Object.assign({id:uid('t'),title:p.title,personId:'me',projectId:null,temaId:null,type:'hacer',date:defaultDate(),waiting:false,remindOn:null,
+  const t = Object.assign({id:uid('t'),title:p.title,personId:'me',projectId:null,programId:null,temaId:null,type:'hacer',date:defaultDate(),waiting:false,remindOn:null,
     note:'',order:maxOrder()+1,done:false,doneAt:null,createdAt:new Date().toISOString()}, r.patch);
   if(t.type === 'urgente' && !p.date) t.date = today();
   else if(t.personId !== 'me'){ t.waiting = true; t.remindOn = p.date || waitDate(); }
-  S.tasks.push(t); commit();
+  fixProg(t); S.tasks.push(t); commit();
   toast(`Creada · ${COLNAME[colOf(t,today())]}`);
   return true;
 }
@@ -846,7 +851,7 @@ function popProject(anchor, id){
     const prs = S.projects.filter(p => p.programId === pg.id);
     if(prs.length) html += `<div class="gh">${esc(pg.name)}</div>` + prs.map(p => `<button class="it" data-v="${p.id}">${p.fav ? '★ ' : ''}${esc(p.name)}</button>`).join('');
   });
-  openPop(anchor, html, v => { taskById(id).projectId = v || null; commit(); });
+  openPop(anchor, html, v => { const t = taskById(id); t.projectId = v || null; fixProg(t); commit(); });
 }
 function popDate(anchor, id){
   const t = taskById(id), w = isWait(t), cur = w ? remindOf(t) : t.date;
@@ -887,7 +892,7 @@ function finishEdit(apply){
     if(r.bad.length){ toast('No existe: ' + r.bad.join(' ')); return; }
     if(!p.title){ toast('Falta el título'); return; }
     const pid = r.patch.personId; delete r.patch.personId;
-    t.title = p.title; Object.assign(t, r.patch);
+    t.title = p.title; Object.assign(t, r.patch); fixProg(t);
     if(pid && pid !== t.personId) setPerson(t, pid);
     if(p.date && t.personId !== 'me' && t.type !== 'urgente'){ t.waiting = true; t.remindOn = p.date; }
     fixOwner(t);
@@ -1012,7 +1017,7 @@ panelEl.addEventListener('input', e => {
 panelEl.addEventListener('change', e => {
   const f = e.target.dataset.f, t = taskById(UI.panel); if(!f || !t) return;
   const v = e.target.type === 'checkbox' ? e.target.checked : e.target.value;
-  if(f === 'projectId') t.projectId = v || null;
+  if(f === 'projectId'){ t.projectId = v || null; fixProg(t); }
   else if(f === 'temaId') t.temaId = v || null;
   else if(f === 'waiting'){ t.waiting = v; t.remindOn = v ? waitDate() : null; }
   else if(f === 'personId') setPerson(t, v);
@@ -1146,7 +1151,7 @@ modalEl.addEventListener('click', e => {
     case 'pdel': S.people = S.people.filter(p => p.id !== id); commit(); openSettings(); break;
     case 'padd': { const n = val('#newPerson'); if(n){ addPerson(n); commit(); openSettings(); } break; }
     case 'gadd': { const n = val('#newProg'); if(n){ S.programs.push({id:uid('p'),name:n,color:PROG_COLORS.find(c => !S.programs.some(g => g.color === c)) || PROG_COLORS[S.programs.length % PROG_COLORS.length]}); commit(); openSettings(); } break; }
-    case 'gdel': S.temas.forEach(m => { if(m.programId === id) m.programId = null; }); S.programs = S.programs.filter(p => p.id !== id); if(UI.filter.programId === id) UI.filter.programId = UI.filter.projectId = null; commit(); openSettings(); break;
+    case 'gdel': S.temas.forEach(m => { if(m.programId === id) m.programId = null; }); S.tasks.forEach(t => { if(t.programId === id) t.programId = null; }); S.programs = S.programs.filter(p => p.id !== id); if(UI.filter.programId === id) UI.filter.programId = UI.filter.projectId = null; commit(); openSettings(); break;
     case 'jadd': { const n = val(`[data-ja="${id}"]`); if(n){ addProject(n,id); commit(); openSettings(); } break; }
     case 'jdel': S.temas.forEach(m => { if(m.projectId === id) m.projectId = null; }); S.projects = S.projects.filter(p => p.id !== id); if(UI.filter.projectId === id) UI.filter.projectId = null; commit(); openSettings(); break;
     case 'tadd': {
