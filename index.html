@@ -757,7 +757,7 @@ function moveInToday(id, how){
 }
 function moveToBlock(id, bkey, temaId){
   const t = taskById(id); if(!t) return;
-  if(temaId){ const m = tema(temaId); if(!m) return; t.temaId = m.id; t.projectId = m.projectId || null; t.programId = null; }
+  if(temaId){ const m = tema(temaId); if(!m) return; t.temaId = m.id; if(m.projectId) t.projectId = m.projectId; fixProg(t); }
   else if(bkey.startsWith('pj:')){ t.projectId = bkey.slice(3); t.temaId = null; t.programId = null; }
   else if(bkey.startsWith('pg:')){ t.projectId = null; t.temaId = null; t.programId = bkey.slice(3); }
   else { t.projectId = null; t.temaId = null; t.programId = null; }
