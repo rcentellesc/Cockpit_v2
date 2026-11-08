@@ -15,9 +15,27 @@
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
   --r:8px;--bg:#17181a;--panel:#202225;--text:#ececea;--muted:#a3a19c;--line:#33363a;--line2:#4a4d52;--soft:#26282b;--hover:#2d3034;--future:#7fb0e6;
   --urgent-bg:#3a2420;--claim-bg:#2b2823;--wait-bg:#2a2622;--wait-line:#4a3f33;--amber:#e0a04a;--red:#ee6a55;--accent:#8db4ea;--star:#e8b43a;color-scheme:dark}}
+/* Medio: gris pizarra, paneles claramente separados del fondo, texto y chips más vivos */
+:root[data-theme="medio"]{
+  --r:8px;--bg:#3a3e46;--panel:#4b5059;--text:#f6f6f3;--muted:#cdd0d6;--line:#5e636d;--line2:#7f858f;--soft:#535862;--hover:#5d626c;--future:#b4d4f7;
+  --urgent-bg:#5c3b37;--claim-bg:#574f45;--wait-bg:#524a40;--wait-line:#7c6d59;--amber:#f5bd68;--red:#ff8d7a;--accent:#b4d4f7;--star:#f7cd5a;color-scheme:dark}
+/* Suave: claro atenuado, sin blanco puro, texto oscuro */
+:root[data-theme="suave"]{
+  --r:10px;--bg:#d3d6dc;--panel:#eaebee;--text:#1b1b1a;--muted:#54575d;--line:#c6c9d0;--line2:#a3a8b1;--soft:#f1f2f4;--hover:#dfe1e6;--future:#2a5f96;
+  --urgent-bg:#f3e2de;--claim-bg:#efe9df;--wait-bg:#e5ddd0;--wait-line:#c8b9a3;--amber:#7f5327;--red:#b52f1c;--accent:#1f4e8c;--star:#b8870f}
+:root[data-theme="suave"] .banner{background:#efe4bf;border-color:#cdb978;color:#5e4a10}
+:root[data-theme="suave"] .chip.proj{background:color-mix(in srgb,var(--pcc) 24%,var(--panel))!important}
+:root[data-theme="medio"] .chip.person{background:color-mix(in srgb,var(--cf) 55%,var(--panel));color:color-mix(in srgb,var(--cb) 92%,#fff)}
+:root[data-theme="medio"] .chip.proj{background:color-mix(in srgb,var(--pcc) 32%,var(--panel))!important;color:color-mix(in srgb,var(--pcc) 35%,#fff)!important}
+:root[data-theme="medio"] .pr .pn b{color:color-mix(in srgb,var(--pc) 45%,#fff)}
+:root[data-theme="medio"] .banner{background:#4a4228;border-color:#7a6a36;color:#f0dc9a}
+:root[data-theme="medio"] .c-btns button{background:var(--soft);border-color:var(--line2);color:var(--text)}
+:root[data-theme="medio"] .ai .acts button{border-color:var(--line2);color:var(--text)}
+:root[data-theme="medio"] .add input::placeholder{color:var(--line2)}
 :root[data-theme="dark"]{
-  --r:8px;--bg:#17181a;--panel:#202225;--text:#ececea;--muted:#a3a19c;--line:#33363a;--line2:#4a4d52;--soft:#26282b;--hover:#2d3034;--future:#7fb0e6;
-  --urgent-bg:#3a2420;--claim-bg:#2b2823;--wait-bg:#2a2622;--wait-line:#4a3f33;--amber:#e0a04a;--red:#ee6a55;--accent:#8db4ea;--star:#e8b43a;color-scheme:dark}
+  --r:8px;--bg:#131416;--panel:#232528;--text:#f0f0ee;--muted:#aeb1b7;--line:#363940;--line2:#545962;--soft:#2a2d31;--hover:#33363c;--future:#8fbdf0;
+  --urgent-bg:#3e2622;--claim-bg:#2f2b25;--wait-bg:#2c2822;--wait-line:#53473a;--amber:#e8a954;--red:#f4725e;--accent:#8fbdf0;--star:#edbb3e;color-scheme:dark}
+:root[data-theme="dark"] .chip.proj{background:color-mix(in srgb,var(--pcc) 26%,var(--panel))!important;color:color-mix(in srgb,var(--pcc) 40%,#fff)!important}
 *{box-sizing:border-box}
 [hidden]{display:none!important}
 body{margin:0;background:var(--bg);color:var(--text);font:14px/1.35 var(--font)}
@@ -28,7 +46,7 @@ input{font:inherit;color:var(--text)}
 .banner{background:#fff7e0;border:1px solid #e8d49a;color:#6b5412;border-radius:8px;padding:6px 12px;font-size:12px;display:flex;flex-wrap:wrap;gap:8px 16px;align-items:center}
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .banner{background:#3a3220;border-color:#6b5a2c;color:#e8d49a}}
 :root[data-theme="dark"] .banner{background:#3a3220;border-color:#6b5a2c;color:#e8d49a}
-.banner .lk{border:1px solid currentColor;background:transparent;border-radius:5px;height:22px;padding:0 8px;font-size:12px;opacity:.8}
+.banner .seg button{height:24px;font-size:12px;padding:0 10px}
 header{display:flex;flex-wrap:wrap;align-items:center;gap:8px 14px}
 h1{margin:0;font-size:20px;font-weight:600;letter-spacing:-.01em}
 .date{color:var(--muted)}
@@ -162,7 +180,7 @@ h1{margin:0;font-size:20px;font-weight:600;letter-spacing:-.01em}
 </head>
 <body>
 <div class="wrap">
-  <div class="banner"><span>Maqueta con datos de ejemplo · <b>Día</b> (tareas) y <b>Radar</b> (asuntos por proyecto). Son dos listas separadas: nada enlaza una con la otra.</span><span class="sp"></span><button class="lk" id="thm">Tema oscuro</button></div>
+  <div class="banner"><span>Maqueta con datos de ejemplo · <b>Día</b> (tareas) y <b>Radar</b> (asuntos por proyecto). Son dos listas separadas: nada enlaza una con la otra.</span><span class="sp"></span><span>Tema:</span><span class="seg" id="thm"><button data-t="light" class="on">Claro</button><button data-t="suave">Suave</button><button data-t="medio">Medio</button><button data-t="dark">Oscuro</button></span></div>
 
   <header>
     <h1>Tareas</h1><span class="date">Sábado, 7 de noviembre de 2026</span>
@@ -264,7 +282,7 @@ function column(t){
 /* ===== helpers ===== */
 const esc=s=>s.replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 const pcolor=pj=>pj?programs[projects[pj].p].color:'#c58aa0';
-const projChip=pj=>{if(!pj)return '<span class="chip nop">proyecto</span>';const c=pcolor(pj);return `<span class="chip proj" style="background:color-mix(in srgb,${c} 18%,var(--panel));color:color-mix(in srgb,${c} 70%,var(--text))">${esc(projects[pj].name)}</span>`};
+const projChip=pj=>{if(!pj)return '<span class="chip nop">proyecto</span>';const c=pcolor(pj);return `<span class="chip proj" style="--pcc:${c};background:color-mix(in srgb,${c} 18%,var(--panel));color:color-mix(in srgb,${c} 70%,var(--text))">${esc(projects[pj].name)}</span>`};
 const personChip=p=>{const o=people[p];if(p==='me')return `<span class="chip me">Yo</span>`;const [bg,fg]=PAL[o.c];return `<span class="chip person" style="--cb:${bg};--cf:${fg}">${esc(o.name)}</span>`};
 function dateTxt(t){
   if(isWaiting(t)){const r=t.rem||t.date;return r<=TODAY?`<span class="claimtxt">reclamar · desde ${dm(t.date)}</span>`:`<span class="dtxt">reclamar ${fmt(r)}</span>`}
@@ -349,7 +367,7 @@ function show(v){
 document.getElementById('tabs').addEventListener('click',e=>{const b=e.target.closest('button');if(b)location.hash=b.dataset.v});
 window.addEventListener('hashchange',()=>show(location.hash.slice(1)));
 document.addEventListener('keydown',e=>{if(e.target.matches('input,textarea'))return;const m={'1':'dia','2':'radar'}[e.key];if(m)location.hash=m});
-document.getElementById('thm').addEventListener('click',()=>{const r=document.documentElement,d=r.getAttribute('data-theme')==='dark';r.setAttribute('data-theme',d?'light':'dark');document.getElementById('thm').textContent=d?'Tema oscuro':'Tema claro'});
+document.querySelectorAll('#thm button').forEach(b=>b.addEventListener('click',()=>{document.documentElement.setAttribute('data-theme',b.dataset.t);document.querySelectorAll('#thm button').forEach(x=>x.classList.toggle('on',x===b))}));
 renderDia();renderRadar();show(location.hash.slice(1));
 </script>
 </body>
