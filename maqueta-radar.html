@@ -15,6 +15,27 @@
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
   --r:8px;--bg:#17181a;--panel:#202225;--text:#ececea;--muted:#a3a19c;--line:#33363a;--line2:#4a4d52;--soft:#26282b;--hover:#2d3034;--future:#7fb0e6;
   --urgent-bg:#3a2420;--claim-bg:#2b2823;--wait-bg:#2a2622;--wait-line:#4a3f33;--amber:#e0a04a;--red:#ee6a55;--accent:#8db4ea;--star:#e8b43a;color-scheme:dark}}
+/* Gris: entre Suave y Medio por el lado claro. Fondo gris medio, paneles claros, texto oscuro */
+:root[data-theme="gris"]{
+  --r:10px;--bg:#b9bdc5;--panel:#e3e5e9;--text:#1b1b1a;--muted:#4a4d53;--line:#c4c7ce;--line2:#949aa4;--soft:#eaecef;--hover:#d4d7dd;--future:#27598f;
+  --urgent-bg:#efdcd8;--claim-bg:#e9e3d9;--wait-bg:#ded6c9;--wait-line:#bfb09a;--amber:#7a4f24;--red:#b02c1a;--accent:#1f4e8c;--star:#b0800c}
+:root[data-theme="gris"] .banner{background:#e4d8b0;border-color:#b9a65f;color:#514008}
+:root[data-theme="gris"] .chip.proj{background:color-mix(in srgb,var(--pcc) 26%,var(--panel))!important}
+:root[data-theme="gris"] .col{background:#c9ccd3}
+:root[data-theme="gris"] .col.waiting{background:var(--wait-bg)}
+/* Pizarra: entre Suave y Medio por el lado oscuro. Gris medio con texto claro */
+:root[data-theme="pizarra"]{
+  --r:8px;--bg:#5a606a;--panel:#6d737e;--text:#fbfbf9;--muted:#dcdfe4;--line:#7f858f;--line2:#9da3ac;--soft:#757b86;--hover:#7e848f;--future:#cde2fb;
+  --urgent-bg:#7c514b;--claim-bg:#786b5b;--wait-bg:#716454;--wait-line:#98886f;--amber:#ffd083;--red:#ffa392;--accent:#cde2fb;--star:#ffd966;color-scheme:dark}
+:root[data-theme="pizarra"] .chip.person{background:color-mix(in srgb,var(--cf) 60%,var(--panel));color:color-mix(in srgb,var(--cb) 95%,#fff)}
+:root[data-theme="pizarra"] .chip.proj{background:color-mix(in srgb,var(--pcc) 42%,var(--panel))!important;color:color-mix(in srgb,var(--pcc) 20%,#fff)!important}
+:root[data-theme="pizarra"] .pr .pn b{color:color-mix(in srgb,var(--pc) 35%,#fff)}
+:root[data-theme="pizarra"] .banner{background:#6b6238;border-color:#9c8f4e;color:#f6e7a8}
+:root[data-theme="pizarra"] .c-btns button,:root[data-theme="pizarra"] .ai .acts button{background:var(--soft);border-color:var(--line2);color:var(--text)}
+:root[data-theme="pizarra"] .c-btns .ok{background:var(--text);color:#2b2f36}
+:root[data-theme="pizarra"] .seg button.on,:root[data-theme="pizarra"] .fchip.on{background:var(--text);color:#2b2f36}
+:root[data-theme="pizarra"] .quick input{border-color:var(--text)}
+:root[data-theme="pizarra"] .add input::placeholder{color:var(--line2)}
 /* Medio: gris pizarra, paneles claramente separados del fondo, texto y chips más vivos */
 :root[data-theme="medio"]{
   --r:8px;--bg:#3a3e46;--panel:#4b5059;--text:#f6f6f3;--muted:#cdd0d6;--line:#5e636d;--line2:#7f858f;--soft:#535862;--hover:#5d626c;--future:#b4d4f7;
@@ -180,7 +201,7 @@ h1{margin:0;font-size:20px;font-weight:600;letter-spacing:-.01em}
 </head>
 <body>
 <div class="wrap">
-  <div class="banner"><span>Maqueta con datos de ejemplo · <b>Día</b> (tareas) y <b>Radar</b> (asuntos por proyecto). Son dos listas separadas: nada enlaza una con la otra.</span><span class="sp"></span><span>Tema:</span><span class="seg" id="thm"><button data-t="light" class="on">Claro</button><button data-t="suave">Suave</button><button data-t="medio">Medio</button><button data-t="dark">Oscuro</button></span></div>
+  <div class="banner"><span>Maqueta con datos de ejemplo · <b>Día</b> (tareas) y <b>Radar</b> (asuntos por proyecto). Son dos listas separadas: nada enlaza una con la otra.</span><span class="sp"></span><span>Tema:</span><span class="seg" id="thm"><button data-t="light" class="on">Claro</button><button data-t="suave">Suave</button><button data-t="gris">Gris</button><button data-t="pizarra">Pizarra</button><button data-t="medio">Medio</button><button data-t="dark">Oscuro</button></span></div>
 
   <header>
     <h1>Tareas</h1><span class="date">Sábado, 7 de noviembre de 2026</span>
