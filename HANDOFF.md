@@ -69,28 +69,21 @@ Programas (con `color`), proyectos (con `programId` y `fav`), personas (`me` sie
 - **Integración con Outlook** (Outlook nuevo y Power Automate disponible). Se propuso un flujo "correo marcado" que crea un archivo por correo en una carpeta de OneDrive, y que la app lea esa carpeta al abrirse. El usuario dijo que de momento no se haga nada.
 - **No probado:** Edge, instalar la app, vincular y reabrir `tareas.json`, ni los avisos al cerrar con un archivo real.
 
-## 5. Decisión de estrategia (cerrada el 30/10/2026)
-Se discutió durante varias vueltas cómo pasar de "inventario de tareas por fecha" a "estado de las cosas". Se maquetaron y **descartaron**: hitos con fecha, frentes con semáforo y línea de estado, riesgos y bloqueos, vista de calendario mensual, fecha límite en tareas, y tres looks de tablero (bloques, carriles, matriz). Motivo: todo eso vive en otra herramienta (hitos, riesgos) o en Outlook (calendario), y mezclarlo convertía la app en "todo y nada".
+## 5. Decisión de estrategia (cerrada el 8/11/2026)
+Se discutió durante varias vueltas cómo pasar de "inventario de tareas por fecha" a "estado de las cosas". Se maquetaron y **descartaron**, por este orden: hitos con fecha, frentes con semáforo y línea de estado, riesgos y bloqueos, vista de calendario mensual, fecha límite en tareas, tres looks de tablero (bloques, carriles, matriz), y por último los **temas como contenedores de tareas** (vista Proyectos con `temaId`, llegó a implementarse). Motivo del último descarte: obligaba a clasificar cada tarea al capturarla, rompía el "pim pam", y el usuario no la usaba.
 
-Lo que queda, ya recogido en `CLAUDE.md`:
-- **Una pregunta**: qué muevo yo y a quién reclamo. Si un hito o riesgo exige algo de Rubén, entra como tarea con fecha.
-- **Tema**: la única entidad nueva. Un nombre más una nota para juntar tareas de lo mismo; cuelga de proyecto, programa o nada. Sin estado, sin fecha, sin semáforo. `temaId` opcional en la tarea. Token `^tema` en la línea rápida.
-- **Dos vistas**: Día (la pantalla actual, con chip de tema) y Proyectos (bloques fijos: Global, y por programa un bloque transversal más uno por proyecto; dentro, temas con sus tareas y las sueltas). Dos avisos: "sin tarea siguiente" y "demasiados temas / muchas".
-- **Look "Color"**: barra lateral del color del programa en tarjetas y filas (sustituye al punto), bloques de Proyectos teñidos con el color del programa, tema claro y oscuro del mismo diseño.
+Lo que queda, recogido en `CLAUDE.md`:
+- **Dos listas separadas, dos vistas.** Día (tareas, la pantalla de siempre) y **Radar** (asuntos que el usuario vigila a su nivel, por proyecto). Nada enlaza una con la otra. Un asunto puede tener tareas en Día que se hagan sin que se resuelva, no tener ninguna, o resolverse solo.
+- **Asunto**: texto, nota, a qué cuelga (proyecto, programa o global), orden manual, foco ★, aparcado, fecha de entrada, resuelto. Sin estado, sin fecha límite, sin dueño, sin avisos.
+- **Radar es una lista, no cajas**: una fila por bloque, siempre las mismas; un proyecto sin asuntos es una línea; uno con siete, siete líneas.
+- **Temas de color**: Gris (claro) y Medio (oscuro), elegidos entre seis candidatos. Tokens en la tabla de `CLAUDE.md`.
 
-Maqueta de referencia: `maqueta-proyectos.html` (datos de ejemplo; pestañas Día/Proyectos y conmutador de look en la franja superior; el look elegido es C/D "Color"). `maqueta-seguimiento.html` se ha eliminado por superada.
+Maqueta de referencia: `maqueta-radar.html` (datos de ejemplo; pestañas Día/Radar y conmutador de tema). `maqueta-proyectos.html` queda obsoleta y se borra con la implementación.
 
-## 6. Orden de implementación propuesto
-1. Modelo: `temas` y `temaId`, migración desde `v: 1` sin temas, Ajustes de temas.
-2. Línea rápida y edición en sitio: token `^`, desplegable con "Crear tema", chip de tema en tarjetas y filas.
-3. Vista Proyectos con el conmutador y las teclas `1`/`2`; filtros aplicados a ambas vistas.
-4. Look Color: barra lateral, filas sobre blanco, bloques teñidos, ajustes para tema oscuro.
-5. Probar en Edge con `tareas.json` real.
-
-### Estado de la implementación (30/10/2026)
-Hechos los pasos 1 a 4 en `index.html`: temas y migración, token `^tema` (con "Crear tema", que pide de qué cuelga) y chip de tema, vista Proyectos con teclas `1`/`2` y filtros, y look Color en claro y oscuro (barra lateral por programa, bloques teñidos, filas blancas). Ajustes incluye la sección Temas. Probado solo en Chromium sin interfaz; falta el paso 5 (Edge con un `tareas.json` real).
-
-Detalles a tener en cuenta:
-- En la línea rápida, un tema o proyecto de varias palabras se escribe con guiones bajos (`^Tema_de_ejemplo`), igual que las personas. Para nombres con espacios también valen "+ tema" en Proyectos y Ajustes.
-- "+ tarea" en un tema rellena la línea rápida con `^tema` y `#proyecto`; el usuario solo escribe el título.
-- Al borrar un proyecto, sus temas pasan a transversales del programa; al mover un proyecto de programa, sus temas lo siguen; al borrar un programa, sus temas pasan a Global.
+## 6. Encargo de implementación (pendiente)
+Partir del `index.html` actual, que ya tiene temas, vista Proyectos y look Color en claro/oscuro. Cambios, en este orden:
+1. **Quitar temas**: entidad `temas`, `temaId` y `programId` en tareas, token `^`, chip de tema, sección Temas de Ajustes, vista Proyectos y su arrastre. Migración: un `tareas.json` con `temas`/`temaId`/`programId` en tareas carga y, al guardar, los descarta; opcionalmente convertir cada tema con tareas abiertas en un asunto del radar con el mismo nombre y bloque.
+2. **Modelo `radar`** y persistencia, purga de resueltos antiguos junto con las hechas.
+3. **Vista Radar** según `CLAUDE.md` y la maqueta: filas fijas, asuntos, "+ asunto", foco/aparcar/resuelto, resueltos plegados, `→ tarea`, edición en sitio y panel lateral, teclado y arrastre, filtros Todo/★ Foco/programas, buscador.
+4. **Temas Gris y Medio**: sustituir los tokens actuales por la tabla de `CLAUDE.md`; mantener `settings.theme` `light`/`dark`.
+5. Borrar `maqueta-proyectos.html`. Probar en Chromium sin errores de consola y, por parte del usuario, en Edge con `tareas.json` real.

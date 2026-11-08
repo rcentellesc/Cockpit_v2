@@ -7,56 +7,32 @@
 <meta name="claude:viewport-fit-sides" content="cover">
 <style>
 /* Layout: dos vistas sobre dos listas separadas. Día = tareas (pantalla actual). Radar = asuntos por proyecto, una fila por proyecto, sin cajas. */
+/* Tema claro "Gris": fondo gris medio, paneles claros, texto oscuro */
 :root{
-  --r:10px;--bg:#eeeff2;--panel:#fff;--text:#1b1b1a;--muted:#5b5a56;--line:#e2e0d9;--line2:#c9c7c0;--soft:#fafaf8;--hover:#ebe9e2;--future:#2f6aa3;
-  --urgent-bg:#fff7f5;--claim-bg:#faf6f1;--wait-bg:#f1eae1;--wait-line:#dccbb8;--amber:#8a5a2b;--red:#c2321e;--accent:#1f4e8c;--star:#c9961a;
+  --r:10px;--bg:#b9bdc5;--panel:#e3e5e9;--text:#1b1b1a;--muted:#4a4d53;--line:#c4c7ce;--line2:#949aa4;--soft:#eaecef;--hover:#d4d7dd;--future:#27598f;
+  --urgent-bg:#efdcd8;--claim-bg:#e9e3d9;--wait-bg:#ded6c9;--wait-line:#bfb09a;--amber:#7a4f24;--red:#b02c1a;--accent:#1f4e8c;--star:#b0800c;--col:#c9ccd3;--proj-mix:26%;
   --font:'IBM Plex Sans',system-ui,-apple-system,"Segoe UI",sans-serif;--mono:'IBM Plex Mono',ui-monospace,monospace;
 }
+/* Tema oscuro "Medio": gris pizarra, paneles separados del fondo, chips más vivos */
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
-  --r:8px;--bg:#17181a;--panel:#202225;--text:#ececea;--muted:#a3a19c;--line:#33363a;--line2:#4a4d52;--soft:#26282b;--hover:#2d3034;--future:#7fb0e6;
-  --urgent-bg:#3a2420;--claim-bg:#2b2823;--wait-bg:#2a2622;--wait-line:#4a3f33;--amber:#e0a04a;--red:#ee6a55;--accent:#8db4ea;--star:#e8b43a;color-scheme:dark}}
-/* Gris: entre Suave y Medio por el lado claro. Fondo gris medio, paneles claros, texto oscuro */
-:root[data-theme="gris"]{
-  --r:10px;--bg:#b9bdc5;--panel:#e3e5e9;--text:#1b1b1a;--muted:#4a4d53;--line:#c4c7ce;--line2:#949aa4;--soft:#eaecef;--hover:#d4d7dd;--future:#27598f;
-  --urgent-bg:#efdcd8;--claim-bg:#e9e3d9;--wait-bg:#ded6c9;--wait-line:#bfb09a;--amber:#7a4f24;--red:#b02c1a;--accent:#1f4e8c;--star:#b0800c}
-:root[data-theme="gris"] .banner{background:#e4d8b0;border-color:#b9a65f;color:#514008}
-:root[data-theme="gris"] .chip.proj{background:color-mix(in srgb,var(--pcc) 26%,var(--panel))!important}
-:root[data-theme="gris"] .col{background:#c9ccd3}
-:root[data-theme="gris"] .col.waiting{background:var(--wait-bg)}
-/* Pizarra: entre Suave y Medio por el lado oscuro. Gris medio con texto claro */
-:root[data-theme="pizarra"]{
-  --r:8px;--bg:#5a606a;--panel:#6d737e;--text:#fbfbf9;--muted:#dcdfe4;--line:#7f858f;--line2:#9da3ac;--soft:#757b86;--hover:#7e848f;--future:#cde2fb;
-  --urgent-bg:#7c514b;--claim-bg:#786b5b;--wait-bg:#716454;--wait-line:#98886f;--amber:#ffd083;--red:#ffa392;--accent:#cde2fb;--star:#ffd966;color-scheme:dark}
-:root[data-theme="pizarra"] .chip.person{background:color-mix(in srgb,var(--cf) 60%,var(--panel));color:color-mix(in srgb,var(--cb) 95%,#fff)}
-:root[data-theme="pizarra"] .chip.proj{background:color-mix(in srgb,var(--pcc) 42%,var(--panel))!important;color:color-mix(in srgb,var(--pcc) 20%,#fff)!important}
-:root[data-theme="pizarra"] .pr .pn b{color:color-mix(in srgb,var(--pc) 35%,#fff)}
-:root[data-theme="pizarra"] .banner{background:#6b6238;border-color:#9c8f4e;color:#f6e7a8}
-:root[data-theme="pizarra"] .c-btns button,:root[data-theme="pizarra"] .ai .acts button{background:var(--soft);border-color:var(--line2);color:var(--text)}
-:root[data-theme="pizarra"] .c-btns .ok{background:var(--text);color:#2b2f36}
-:root[data-theme="pizarra"] .seg button.on,:root[data-theme="pizarra"] .fchip.on{background:var(--text);color:#2b2f36}
-:root[data-theme="pizarra"] .quick input{border-color:var(--text)}
-:root[data-theme="pizarra"] .add input::placeholder{color:var(--line2)}
-/* Medio: gris pizarra, paneles claramente separados del fondo, texto y chips más vivos */
-:root[data-theme="medio"]{
   --r:8px;--bg:#3a3e46;--panel:#4b5059;--text:#f6f6f3;--muted:#cdd0d6;--line:#5e636d;--line2:#7f858f;--soft:#535862;--hover:#5d626c;--future:#b4d4f7;
-  --urgent-bg:#5c3b37;--claim-bg:#574f45;--wait-bg:#524a40;--wait-line:#7c6d59;--amber:#f5bd68;--red:#ff8d7a;--accent:#b4d4f7;--star:#f7cd5a;color-scheme:dark}
-/* Suave: claro atenuado, sin blanco puro, texto oscuro */
-:root[data-theme="suave"]{
-  --r:10px;--bg:#d3d6dc;--panel:#eaebee;--text:#1b1b1a;--muted:#54575d;--line:#c6c9d0;--line2:#a3a8b1;--soft:#f1f2f4;--hover:#dfe1e6;--future:#2a5f96;
-  --urgent-bg:#f3e2de;--claim-bg:#efe9df;--wait-bg:#e5ddd0;--wait-line:#c8b9a3;--amber:#7f5327;--red:#b52f1c;--accent:#1f4e8c;--star:#b8870f}
-:root[data-theme="suave"] .banner{background:#efe4bf;border-color:#cdb978;color:#5e4a10}
-:root[data-theme="suave"] .chip.proj{background:color-mix(in srgb,var(--pcc) 24%,var(--panel))!important}
-:root[data-theme="medio"] .chip.person{background:color-mix(in srgb,var(--cf) 55%,var(--panel));color:color-mix(in srgb,var(--cb) 92%,#fff)}
-:root[data-theme="medio"] .chip.proj{background:color-mix(in srgb,var(--pcc) 32%,var(--panel))!important;color:color-mix(in srgb,var(--pcc) 35%,#fff)!important}
-:root[data-theme="medio"] .pr .pn b{color:color-mix(in srgb,var(--pc) 45%,#fff)}
-:root[data-theme="medio"] .banner{background:#4a4228;border-color:#7a6a36;color:#f0dc9a}
-:root[data-theme="medio"] .c-btns button{background:var(--soft);border-color:var(--line2);color:var(--text)}
-:root[data-theme="medio"] .ai .acts button{border-color:var(--line2);color:var(--text)}
-:root[data-theme="medio"] .add input::placeholder{color:var(--line2)}
+  --urgent-bg:#5c3b37;--claim-bg:#574f45;--wait-bg:#524a40;--wait-line:#7c6d59;--amber:#f5bd68;--red:#ff8d7a;--accent:#b4d4f7;--star:#f7cd5a;--col:var(--bg);--proj-mix:32%;color-scheme:dark}}
 :root[data-theme="dark"]{
-  --r:8px;--bg:#131416;--panel:#232528;--text:#f0f0ee;--muted:#aeb1b7;--line:#363940;--line2:#545962;--soft:#2a2d31;--hover:#33363c;--future:#8fbdf0;
-  --urgent-bg:#3e2622;--claim-bg:#2f2b25;--wait-bg:#2c2822;--wait-line:#53473a;--amber:#e8a954;--red:#f4725e;--accent:#8fbdf0;--star:#edbb3e;color-scheme:dark}
-:root[data-theme="dark"] .chip.proj{background:color-mix(in srgb,var(--pcc) 26%,var(--panel))!important;color:color-mix(in srgb,var(--pcc) 40%,#fff)!important}
+  --r:8px;--bg:#3a3e46;--panel:#4b5059;--text:#f6f6f3;--muted:#cdd0d6;--line:#5e636d;--line2:#7f858f;--soft:#535862;--hover:#5d626c;--future:#b4d4f7;
+  --urgent-bg:#5c3b37;--claim-bg:#574f45;--wait-bg:#524a40;--wait-line:#7c6d59;--amber:#f5bd68;--red:#ff8d7a;--accent:#b4d4f7;--star:#f7cd5a;--col:var(--bg);--proj-mix:32%;color-scheme:dark}
+.col{background:var(--col)}
+.chip.proj{background:color-mix(in srgb,var(--pcc) var(--proj-mix),var(--panel))!important}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .chip.person{background:color-mix(in srgb,var(--cf) 55%,var(--panel));color:color-mix(in srgb,var(--cb) 92%,#fff)}
+:root:not([data-theme="light"]) .chip.proj{color:color-mix(in srgb,var(--pcc) 35%,#fff)!important}
+:root:not([data-theme="light"]) .pr .pn b{color:color-mix(in srgb,var(--pc) 45%,#fff)}
+:root:not([data-theme="light"]) .banner{background:#4a4228;border-color:#7a6a36;color:#f0dc9a}
+:root:not([data-theme="light"]) .c-btns button,:root:not([data-theme="light"]) .ai .acts button{background:var(--soft);border-color:var(--line2);color:var(--text)}}
+:root[data-theme="dark"] .chip.person{background:color-mix(in srgb,var(--cf) 55%,var(--panel));color:color-mix(in srgb,var(--cb) 92%,#fff)}
+:root[data-theme="dark"] .chip.proj{color:color-mix(in srgb,var(--pcc) 35%,#fff)!important}
+:root[data-theme="dark"] .pr .pn b{color:color-mix(in srgb,var(--pc) 45%,#fff)}
+:root[data-theme="dark"] .banner{background:#4a4228;border-color:#7a6a36;color:#f0dc9a}
+:root[data-theme="dark"] .c-btns button,:root[data-theme="dark"] .ai .acts button{background:var(--soft);border-color:var(--line2);color:var(--text)}
+.banner{background:#e4d8b0;border-color:#b9a65f;color:#514008}
 *{box-sizing:border-box}
 [hidden]{display:none!important}
 body{margin:0;background:var(--bg);color:var(--text);font:14px/1.35 var(--font)}
@@ -65,8 +41,6 @@ input{font:inherit;color:var(--text)}
 :focus-visible{outline:2px solid var(--accent);outline-offset:1px}
 .wrap{max-width:1400px;margin:0 auto;padding-block:16px 28px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));display:flex;flex-direction:column;gap:12px}
 .banner{background:#fff7e0;border:1px solid #e8d49a;color:#6b5412;border-radius:8px;padding:6px 12px;font-size:12px;display:flex;flex-wrap:wrap;gap:8px 16px;align-items:center}
-@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .banner{background:#3a3220;border-color:#6b5a2c;color:#e8d49a}}
-:root[data-theme="dark"] .banner{background:#3a3220;border-color:#6b5a2c;color:#e8d49a}
 .banner .seg button{height:24px;font-size:12px;padding:0 10px}
 header{display:flex;flex-wrap:wrap;align-items:center;gap:8px 14px}
 h1{margin:0;font-size:20px;font-weight:600;letter-spacing:-.01em}
@@ -91,8 +65,6 @@ h1{margin:0;font-size:20px;font-weight:600;letter-spacing:-.01em}
 .chip{display:inline-block;border:0;border-radius:10px;padding:2px 9px;font-size:12px;font-weight:500;line-height:1.35;white-space:nowrap;max-width:100%;overflow:hidden;text-overflow:ellipsis}
 .chip.me{background:transparent;color:var(--muted);border:1px solid var(--line2);font-weight:400;padding:1px 8px}
 .chip.person{background:var(--cb);color:var(--cf)}
-:root[data-theme="dark"] .chip.person{background:color-mix(in srgb,var(--cf) 35%,var(--panel));color:color-mix(in srgb,var(--cb) 90%,#fff)}
-@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .chip.person{background:color-mix(in srgb,var(--cf) 35%,var(--panel));color:color-mix(in srgb,var(--cb) 90%,#fff)}}
 .chip.proj{border-radius:4px;padding:2px 8px;font-weight:600}
 .chip.nop{border-radius:4px;padding:1px 7px;border:1px dashed #c58aa0;color:var(--muted);background:transparent;font-weight:400}
 .dtxt{color:var(--muted);font-size:12px;white-space:nowrap}
@@ -201,7 +173,7 @@ h1{margin:0;font-size:20px;font-weight:600;letter-spacing:-.01em}
 </head>
 <body>
 <div class="wrap">
-  <div class="banner"><span>Maqueta con datos de ejemplo · <b>Día</b> (tareas) y <b>Radar</b> (asuntos por proyecto). Son dos listas separadas: nada enlaza una con la otra.</span><span class="sp"></span><span>Tema:</span><span class="seg" id="thm"><button data-t="light" class="on">Claro</button><button data-t="suave">Suave</button><button data-t="gris">Gris</button><button data-t="pizarra">Pizarra</button><button data-t="medio">Medio</button><button data-t="dark">Oscuro</button></span></div>
+  <div class="banner"><span>Maqueta con datos de ejemplo · <b>Día</b> (tareas) y <b>Radar</b> (asuntos por proyecto). Son dos listas separadas: nada enlaza una con la otra.</span><span class="sp"></span><span>Tema:</span><span class="seg" id="thm"><button data-t="light" class="on">Claro · Gris</button><button data-t="dark">Oscuro · Medio</button></span></div>
 
   <header>
     <h1>Tareas</h1><span class="date">Sábado, 7 de noviembre de 2026</span>

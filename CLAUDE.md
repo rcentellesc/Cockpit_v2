@@ -10,7 +10,7 @@ Principio: capturar y mover tareas tiene que ser "pim pam". Una línea de texto 
 
 Responde a una sola pregunta: **qué muevo yo y a quién tengo que reclamar**. Los hitos, riesgos y bloqueos de los proyectos viven en la herramienta corporativa de seguimiento de proyectos; el calendario, en Outlook. Si uno de ellos exige algo del usuario, entra como tarea con fecha. Lo que no sea una acción suya o un reclamo no entra.
 
-Dos vistas sobre la misma lista (pestañas en cabecera, teclas `1` y `2`): **Día** (Hoy + columnas por fecha, la pantalla principal) y **Proyectos** (bloques fijos por proyecto, con sus temas y tareas). Marcar hecha en una la quita de la otra.
+Dos vistas (pestañas en cabecera, teclas `1` y `2`) sobre **dos listas separadas**: **Día** (tareas: Hoy + columnas por fecha, la pantalla principal) y **Radar** (asuntos: lo que el usuario vigila a su nivel en cada proyecto, sin tareas colgando). Nada enlaza una lista con la otra. Un asunto puede tener tareas en Día que se hagan sin que el asunto se resuelva, no tener ninguna, o resolverse solo.
 
 ## Modelo de datos
 
@@ -21,10 +21,10 @@ Dos vistas sobre la misma lista (pestañas en cabecera, teclas `1` y `2`): **Dí
   "programs":  [{ "id": "p1", "name": "Programa A", "color": "#3d7ebf" }, { "id": "p2", "name": "Programa B", "color": "#2e9e7a" }],
   "projects":  [{ "id": "pr1", "programId": "p1", "name": "Proyecto A1", "fav": true }],
   "people":    [{ "id": "me", "name": "Yo", "color": "black" }, { "id": "u1", "name": "Persona 1", "color": "blue" }],
-  "temas":     [{ "id": "m1", "programId": "p1", "projectId": "pr1", "name": "Incidencia abierta", "note": "" }],
+  "radar":     [{ "id": "r1", "programId": "p1", "projectId": "pr1", "text": "Bloqueo en el conector externo", "note": "", "order": 0, "foco": true, "parked": false, "createdAt": "2026-10-28", "doneAt": null }],
   "tasks": [{
     "id": "t1", "title": "Pedir presupuesto",
-    "personId": "u1", "projectId": "pr1", "temaId": "m1",
+    "personId": "u1", "projectId": "pr1",
     "type": "hacer | urgente",
     "date": "2026-10-08",
     "waiting": false, "remindOn": null,
@@ -37,8 +37,8 @@ Dos vistas sobre la misma lista (pestañas en cabecera, teclas `1` y `2`): **Dí
 - `date` es la fecha en la que quiero ver la tarea, no un vencimiento. Siempre tiene valor.
 - `waiting: true` = la tarea está en Esperando; `remindOn` es la fecha de reclamo.
 - Persona `me` existe siempre, no se puede borrar, color negro.
-- Cada proyecto pertenece a un programa. Las tareas llevan proyecto; solo si no tienen proyecto pueden llevar un `programId` opcional, que las deja sueltas en el bloque transversal de ese programa (se fija arrastrando en la vista Proyectos).
-- **Tema** = un nombre para juntar tareas de lo mismo ("Informes para dirección", "Incidencia abierta", "Plan de equipo"). Cuelga de un proyecto (`projectId`, y `programId` el del proyecto), de un programa (`programId` solo) o de nada (global). Lleva `name` y `note` libre, y **nada más**: sin estado, sin fecha, sin semáforo, sin dueño. Su estado es su siguiente tarea abierta. `temaId` en la tarea es opcional e independiente de `projectId` (una tarea puede tener proyecto sin tema, tema sin proyecto, ambos o ninguno). Un tema se crea solo desde "Crear tema" en la línea rápida o desde Proyectos/Ajustes; se borra desde Ajustes (sus tareas quedan sin tema).
+- Cada proyecto pertenece a un programa. Las tareas solo llevan proyecto (opcional).
+- **Asunto** (lista `radar`) = un tema que el usuario vigila a su nivel: "bloqueo en el conector", "fechas que se ha dado validación". No son los riesgos del proyecto (esos están en la herramienta corporativa), son los que él decide tener en el radar esta temporada. Cuelga de un proyecto (`projectId`, y `programId` el del proyecto), de un programa (`programId` solo) o de nada (global). Lleva `text`, `note` libre, `order` (manual dentro de su bloque), `foco` (★, lo sube y lo pone en negrita), `parked` (aparcado, abajo en gris), `createdAt` (fecha en que entró, se muestra) y `doneAt` (resuelto; sale de la fila y queda plegado en "resueltos"). **Nada más**: sin estado, sin semáforo, sin fecha límite, sin dueño, sin enlace con tareas. Se crea solo desde la vista Radar ("+ asunto" en cada bloque). Un asunto resuelto se puede reabrir desde "resueltos"; los resueltos de más de 90 días se purgan junto con las hechas.
 
 ## Columnas (calculadas, nunca almacenadas)
 Las columnas se derivan de `date` / `waiting` cada vez que se renderiza, con la fecha de hoy. Una tarea para el jueves está en "Esta semana" el lunes y en "Hoy" el jueves, sin intervención.
@@ -57,35 +57,64 @@ Las columnas se derivan de `date` / `waiting` cada vez que se renderiza, con la 
 Semana empieza en lunes. Hoy no tiene límite; si hay más de `warnToday` tareas, el contador se pone en rojo con texto "demasiadas, reparte". Las de Esperando que llegan a Hoy se muestran como reclamo (fondo ámbar suave) y con texto "reclamar · desde dd/mm".
 
 ## Layout
-Pantalla de escritorio, 1280+ px. Fondo claro `#eeeff2`, tipografía system-ui (sin fuentes externas), texto `#1b1b1a`. Referencia visual: `maqueta-proyectos.html` con el look **Color** (claro y oscuro).
+Pantalla de escritorio, 1280+ px. Tipografía system-ui (sin fuentes externas). Colores por tokens, ver **Temas**. Referencia visual: `maqueta-radar.html` (datos de ejemplo, pestañas Día/Radar, conmutador de tema en la franja superior).
 
-1. **Cabecera**: título, fecha de hoy, conmutador de vista **Día | Proyectos**. A la derecha: filtros (ver abajo), botón Hechas (N), botón Ajustes.
-2. **Línea rápida**: input grande (46 px, 16 px de texto). Debajo, una línea de ayuda con la sintaxis y los atajos.
-3. **Hoy**: panel blanco a la izquierda, ~35 % del ancho, con dos carriles (swimlanes): "Mías" arriba y "De otros" abajo (fondo ámbar `#f1eae1`, borde `#dccbb8`), cada uno con su cabecera y contador. El resto de columnas hacen lo mismo y muestran las cabeceras de carril solo si hay tareas de ambos tipos. Orden manual dentro de cada carril. Tarjetas grandes: título 16 px, chip de persona, chip de proyecto, fecha, y botones siempre visibles: `→ mañ`, `→ vie`, `⏸ espera`, `✓`. Orden manual por arrastre dentro de Hoy.
-4. **Resto**: cinco columnas a la derecha en formato lista compacta (una fila = título 13 px; segunda línea chip persona + fecha). Sin botones visibles; al pasar el ratón aparecen: sol (a Hoy), `→ mañ`, `⏸`, `✓`. Esperando con fondo `#f1eae1`, borde `#dccbb8`, cabecera ámbar, y la fecha de cada fila dice "reclamar jue 8".
+1. **Cabecera**: título, fecha de hoy, conmutador de vista **Día | Radar**. A la derecha: filtros (ver abajo), botón Hechas (N), botón Ajustes.
+2. **Línea rápida**: input grande (46 px, 16 px de texto). Debajo, una línea de ayuda con la sintaxis y los atajos. Se oculta en la vista Radar.
+3. **Hoy**: panel (`--panel`) a la izquierda, ~35 % del ancho, con dos carriles (swimlanes): "Mías" arriba y "De otros" abajo (fondo `--wait-bg`, borde `--wait-line`), cada uno con su cabecera y contador. El resto de columnas hacen lo mismo y muestran las cabeceras de carril solo si hay tareas de ambos tipos. Orden manual dentro de cada carril. Tarjetas grandes: título 16 px, chip de persona, chip de proyecto, fecha, y botones siempre visibles: `→ mañ`, `→ vie`, `⏸ espera`, `✓`. Orden manual por arrastre dentro de Hoy.
+4. **Resto**: cinco columnas a la derecha en formato lista compacta (una fila = título 13 px; segunda línea chip persona + fecha). Sin botones visibles; al pasar el ratón aparecen: sol (a Hoy), `→ mañ`, `⏸`, `✓`. Esperando con fondo `--wait-bg`, borde `--wait-line`, cabecera ámbar, y la fecha de cada fila dice "reclamar jue 8".
 5. **Pie**: leyenda de colores y estado de guardado ("Guardado en tareas.json · hh:mm" o "Solo navegador · vincular archivo en Ajustes").
 
-Las tarjetas y filas muestran, tras el chip de proyecto, el **chip de tema** si lo hay: punteado, gris, con prefijo "›" (`› Incidencia abierta`). Clic abre el desplegable de temas.
+### Vista Radar
+Sustituye a Hoy + columnas y a la línea rápida cuando está activa; cabecera, filtros y pie se mantienen. Es **una lista, no una cuadrícula**: un panel único con una banda por programa (banda **Global** primero) y, dentro, **una fila por bloque**, siempre las mismas filas aunque estén vacías: en Global una fila "Global · sin programa"; en cada programa una fila "Programa · transversal" y una por proyecto. Las filas se derivan de `programs` y `projects`.
 
-### Vista Proyectos
-Sustituye a Hoy + columnas cuando está activa; la línea rápida, cabecera y pie se mantienen. **Bloques fijos** (uno por proyecto, más el global y uno transversal por programa), siempre los mismos aunque estén vacíos, en una cuadrícula de 4 por fila agrupada en bandas: banda **Global** (1 bloque: temas y tareas sin programa), y una banda por programa (un bloque "Programa · transversal" con los temas de programa, más un bloque por proyecto). Los bloques se derivan de `programs` y `projects`; si se crean proyectos nuevos aparecen bloques nuevos.
+Encima del panel, una línea de resumen: "N asuntos en el radar · N en foco ★ · N aparcados · N resueltos esta semana".
 
-Cada bloque: cabecera con nombre y "N tareas"; dentro, sus **temas** (nombre en negrita con "›", contador, `+ tarea` al pasar el ratón) con sus tareas abiertas debajo ordenadas por fecha de ver/reclamar, y al final el grupo **Sueltas** con las tareas del bloque sin tema. Pie con `+ tema`. Cada fila de tarea: círculo para marcar hecha, título, chip de persona, fecha o "reclamar"; fondo ámbar si es de otro, título en negrita y círculo rojo si es urgente. Clic en título edita en sitio; doble clic abre el panel lateral. **Arrastre entre bloques**: arrastrar una fila y soltarla sobre un tema la pasa a ese tema (y a su proyecto si el tema lo tiene; si el tema es transversal o global, la tarea conserva el proyecto que tuviera); soltarla sobre un bloque de proyecto fuera de un tema la deja suelta en ese proyecto; sobre Global, suelta y sin proyecto. Soltarla sobre un bloque transversal, fuera de un tema, la deja suelta en ese programa (`programId`, sin proyecto ni tema). Todo bloque tiene su grupo **Sueltas** cuando hay tareas sueltas en él. El destino se resalta con borde discontinuo y el tablero se desplaza solo cerca de sus bordes.
+Cada fila: a la izquierda (220 px, borde izquierdo de 4 px del color del programa) el nombre del bloque en el color del programa, debajo en gris "transversal" o "sin programa" si procede y "N asuntos · k ★". A la derecha, sus asuntos abiertos uno por línea: ★ foco primero (en negrita), luego los normales por `order`, al final los aparcados (gris, cursiva). Cada asunto: asa de arrastre (visible al pasar el ratón), botón estrella, texto, nota corta en gris tras " · " si la hay, fecha de `createdAt` como "dd/mm" a la derecha, y al pasar el ratón tres botones: `→ tarea`, `aparcar`/`reactivar`, `✓ resuelto`. Debajo de los asuntos, un input en línea "+ asunto" (Intro crea con el texto escrito, sin sintaxis, y vacía el input). Debajo, si hay, "▸ resueltos (N)" plegado: clic despliega la lista tachada con su fecha; clic en uno lo reabre. Fila sin asuntos abiertos: una sola línea con "Nada en el radar" en cursiva gris y el input "+ asunto" al lado.
 
-Avisos, y ningún otro: tema sin tarea abierta → "sin tarea siguiente" en ámbar; más de 4 temas en un bloque → "demasiados temas"; más de 5 tareas en un tema → "muchas". Bloque sin nada → "Nada abierto" en cursiva.
+`→ tarea` cambia a Día y deja la línea rápida con `#Proyecto ` (o nada si el asunto es transversal o global) y el foco en el input; no crea nada ni enlaza nada. Clic en el texto lo edita en sitio (Intro guarda, Esc cancela). Doble clic abre el panel lateral con texto, nota, a qué cuelga (proyecto / programa / global) y botón Borrar con confirmación.
 
-Los filtros de cabecera actúan también aquí: Mías/Reclamar y el buscador filtran las filas; un programa activo oculta las otras bandas. Los bloques de la banda visible no desaparecen nunca.
+Teclado con un asunto seleccionado (clic o flechas): `F` foco · `A` aparcar/reactivar · `X` resuelto · `Alt+↑/↓` reordenar dentro de su bloque · `Intro` editar · `Esc` deseleccionar. Arrastre: reordena dentro del bloque o mueve a otro bloque (cambia `projectId`/`programId`).
 
-Referencia visual: la maqueta acordada (panel Hoy grande a la izquierda, listas compactas a la derecha). No copiar el estilo de otras apps: nada de campos "Persona / Fecha límite" vacíos en cada tarjeta.
+Sin avisos de ningún tipo. Los filtros de cabecera en Radar son: Todo, **★ Foco** (atenúa al 30 % los que no están en foco, no los oculta) y programas (un programa activo oculta las otras bandas). El buscador `/` filtra por texto y nota.
+
+Referencia visual de Día: panel Hoy grande a la izquierda, listas compactas a la derecha. No copiar el estilo de otras apps: nada de campos "Persona / Fecha límite" vacíos en cada tarjeta.
 
 ## Colores
 Dos dimensiones separadas:
 
-**Barra lateral = programa** (look Color): cada tarjeta de Hoy lleva una barra izquierda de 4 px y cada fila de columna una de 3 px con el color del programa, de una paleta de 8 (`#3d7ebf #2e9e7a #8a5fc4 #e07b39 #1f9aa5 #d0527f #8d9a1f #6b7889`) asignada en orden al crear programas y editable en Ajustes. Sin proyecto pero con programa (tarea suelta en un bloque transversal por `programId`, o con un tema de programa): la barra y el chip llevan el color del programa y el chip muestra el nombre del **programa** en lugar del proyecto; el clic abre el desplegable de proyecto. Sin proyecto ni programa: barra rosa `#c58aa0` y, en lugar del chip de proyecto, un chip punteado "proyecto" que abre el desplegable. Las filas de columna van sobre fondo blanco con 3 px de separación, sin línea inferior. Sustituye al punto de color anterior: ya no hay punto. Urgente: la barra pasa a roja `#c2321e`, título en 600 y fondo `#fff7f5`. **Tarjeta ámbar** (fondo `#faf6f1`, borde `#dccbb8`): la tarea es de otra persona (chip ≠ Yo) o es un reclamo que vuelve de Esperando. Si es urgente y de otra persona, fondo ámbar con barra roja.
+**Barra lateral = programa**: cada tarjeta de Hoy lleva una barra izquierda de 4 px y cada fila de columna una de 3 px con el color del programa, de una paleta de 8 (`#3d7ebf #2e9e7a #8a5fc4 #e07b39 #1f9aa5 #d0527f #8d9a1f #6b7889`) asignada en orden al crear programas y editable en Ajustes. Sin proyecto: barra rosa `#c58aa0` y, en lugar del chip de proyecto, un chip punteado "proyecto" que abre el desplegable. Las filas de columna van sobre fondo de panel con 3 px de separación, sin línea inferior. No hay punto de color. Urgente: la barra pasa a roja (`--red`), título en 600 y fondo `--urgent-bg`. **Tarjeta ámbar** (fondo `--claim-bg`, borde `--wait-line`): la tarea es de otra persona (chip ≠ Yo) o es un reclamo que vuelve de Esperando. Si es urgente y de otra persona, fondo ámbar con barra roja.
 
-En **Proyectos** el programa tiñe el bloque: fondo `color-mix(programa 7%, panel)`, borde `color-mix(programa 30%, panel)`, borde superior de 4 px del color, nombre del bloque en `color-mix(programa 70%, texto)`. Los bloques transversales y Global, con borde discontinuo y tinte al 3 %. En tema oscuro los porcentajes suben a 10 % / 35 % y los chips de persona se oscurecen (`color-mix(texto del chip 35%, panel)` de fondo).
+En **Radar** el color del programa va solo en el borde izquierdo de la fila y en el nombre del bloque (`color-mix(programa 70%, texto)` en claro; `color-mix(programa 45%, #fff)` en oscuro). La estrella de foco usa `--star`. Nada más lleva color.
 
-**Chip de proyecto = etiqueta de color** (es lo principal de la segunda línea, antes que la persona): fondo `color-mix(programa 18%, panel)` y texto `color-mix(programa 70%, texto)`, con el color del programa. **Chip = persona**: el de Yo es discreto (contorno gris, sin relleno); los demás llevan su color. "Depende de alguien" no es un tipo: es que el chip no es Yo, y la tarjeta se pinta ámbar. Paleta de 8, fondo claro + texto oscuro (contraste ≥ 4.5:1), asignada en orden al crear personas; Yo siempre negro/blanco:
+### Temas
+Dos temas, elegidos tras probar seis: **Gris** (claro) y **Medio** (oscuro). `settings.theme` sigue siendo `light` | `dark`. Todo color sale de estos tokens; ningún componente lleva un color literal que solo funcione en un tema.
+
+| token | Gris (light) | Medio (dark) |
+|---|---|---|
+| --bg | #b9bdc5 | #3a3e46 |
+| --panel | #e3e5e9 | #4b5059 |
+| --col (fondo de columna) | #c9ccd3 | = --bg |
+| --soft | #eaecef | #535862 |
+| --hover | #d4d7dd | #5d626c |
+| --text | #1b1b1a | #f6f6f3 |
+| --muted | #4a4d53 | #cdd0d6 |
+| --line | #c4c7ce | #5e636d |
+| --line2 | #949aa4 | #7f858f |
+| --future | #27598f | #b4d4f7 |
+| --accent | #1f4e8c | #b4d4f7 |
+| --red | #b02c1a | #ff8d7a |
+| --amber | #7a4f24 | #f5bd68 |
+| --star | #b0800c | #f7cd5a |
+| --urgent-bg | #efdcd8 | #5c3b37 |
+| --claim-bg | #e9e3d9 | #574f45 |
+| --wait-bg | #ded6c9 | #524a40 |
+| --wait-line | #bfb09a | #7c6d59 |
+| radio de tarjetas y paneles | 10 px | 8 px |
+
+Chips de proyecto: fondo `color-mix(programa 26%, panel)` y texto `color-mix(programa 70%, texto)` en Gris; en Medio, fondo al 32 % y texto `color-mix(programa 35%, #fff)`. Chips de persona en Medio: fondo `color-mix(texto del chip 55%, panel)`, texto `color-mix(fondo del chip 92%, #fff)`. En Medio, `color-scheme: dark` para que los controles nativos sigan al tema. Los botones de tarjeta en Medio usan fondo `--soft`, borde `--line2` y texto `--text`.
+
+**Chip de proyecto = etiqueta de color** (es lo principal de la segunda línea, antes que la persona), con el color del programa según la tabla de Temas. **Chip = persona**: el de Yo es discreto (contorno gris, sin relleno); los demás llevan su color. "Depende de alguien" no es un tipo: es que el chip no es Yo, y la tarjeta se pinta ámbar. Paleta de 8, fondo claro + texto oscuro (contraste ≥ 4.5:1), asignada en orden al crear personas; Yo siempre negro/blanco:
 
 | nombre | fondo | texto |
 |---|---|---|
@@ -103,7 +132,6 @@ Un input. Intro crea la tarea y vacía el input. Sintaxis, en cualquier orden:
 
 - `@nombre` persona. Al teclear `@` se abre un desplegable con las personas guardadas, filtrando al escribir; flechas + Intro o clic selecciona. Última opción siempre "Crear persona: xxx"; una persona nueva **solo** se crea eligiendo esa opción explícitamente, nunca por un texto suelto. Nueva persona recibe el siguiente color de la paleta.
 - `#proyecto` idéntico, con "Crear proyecto: xxx" (pide el programa en un desplegable pequeño).
-- `^tema` idéntico, con "Crear tema: xxx" (pide a qué cuelga: el proyecto de la tarea si lo tiene, un programa, o global). Opcional; la mayoría de tareas no llevan tema.
 - Fecha: `hoy`, `mañ`/`mañana`, `lun`…`dom` (próximo día de esa semana; si es hoy, hoy), `12/10`, `12/10/26`, `+3` (días), `nov`/`dic`… (día 1 del mes). Admite acentos y mayúsculas.
 - `!` urgente. Sin marca: hacer. (`?` no tiene significado.)
 - `Ctrl+Intro` en vez de `Intro` crea la tarea directamente en Hoy.
@@ -124,15 +152,15 @@ Pasar a Esperando (botón, tecla, arrastre, panel o al crear) usa `remindOn = ho
 Hecha: `done=true, doneAt=ahora`; desaparece de las columnas. Botón "Hechas (N)" muestra una lista con fecha y permite recuperar. Las hechas de más de 90 días se pueden purgar desde Ajustes.
 
 ## Editar
-**En sitio**, sin abrir nada: clic en título → edición inline (Intro guarda, Esc cancela; acepta la misma sintaxis `@ # ^ !` y la aplica). Clic en chip persona → desplegable (incluye Yo). Clic en fecha → selector con atajos hoy · mañ · vie · lun + calendario nativo. Clic en chip proyecto → desplegable. Clic en chip tema → desplegable con "Sin tema" y "Crear tema".
+**En sitio**, sin abrir nada: clic en título → edición inline (Intro guarda, Esc cancela; acepta la misma sintaxis `@ # !` y la aplica). Clic en chip persona → desplegable (incluye Yo). Clic en fecha → selector con atajos hoy · mañ · vie · lun + calendario nativo. Clic en chip proyecto → desplegable.
 
 **Panel lateral** (doble clic o Intro): todos los campos + nota libre (`note`, textarea) + botón Borrar (con confirmación). Esc cierra.
 
 ## Filtros
-Cabecera: chip "Todo", "Mías" (persona = Yo), "Reclamar" (persona ≠ Yo o waiting), y pestañas por programa; con un programa activo aparecen los chips de sus proyectos. Un filtro afecta a todas las columnas y a la vista Proyectos. `/` enfoca un buscador de texto que filtra por título, nota y nombre del tema.
+Cabecera: chip "Todo", "Mías" (persona = Yo), "Reclamar" (persona ≠ Yo o waiting), y pestañas por programa; con un programa activo aparecen los chips de sus proyectos. Un filtro afecta a todas las columnas. En Radar, ver su sección. `/` enfoca un buscador de texto que filtra por título y nota (en Radar, por texto y nota del asunto).
 
 ## Atajos globales
-`N` enfoca la línea rápida · `/` buscador · `?` muestra la tabla de atajos · `1` vista Día · `2` vista Proyectos. Las teclas de mover solo actúan con una fila seleccionada y nunca mientras se escribe en un input.
+`N` enfoca la línea rápida · `/` buscador · `?` muestra la tabla de atajos · `1` vista Día · `2` vista Radar. Las teclas de mover solo actúan con una fila seleccionada y nunca mientras se escribe en un input.
 
 ## Persistencia
 1. Siempre: `localStorage` (clave `tareas.v1`), guardado en cada cambio.
@@ -143,16 +171,16 @@ Cabecera: chip "Todo", "Mías" (persona = Yo), "Reclamar" (persona ≠ Yo o wait
 `tareas.json` nunca se sube al repo (`.gitignore`).
 
 ## Ajustes (modal)
-Capturar en · Alerta de espera (días) · Aviso en Hoy a partir de N · Tema claro/oscuro · Personas (lista editable: renombrar actualiza sus tareas, color, borrar solo si no tiene tareas) · Programas y proyectos (crear, renombrar, favorito, mover de programa) · Temas (renombrar, mover de proyecto/programa, borrar: sus tareas quedan sin tema) · Archivo vinculado · Exportar / Importar · Purgar hechas antiguas.
+Capturar en · Alerta de espera (días) · Aviso en Hoy a partir de N · Tema claro/oscuro · Personas (lista editable: renombrar actualiza sus tareas, color, borrar solo si no tiene tareas) · Programas y proyectos (crear, renombrar, favorito, mover de programa) · Archivo vinculado · Exportar / Importar · Purgar hechas y asuntos resueltos antiguos (más de 90 días).
 
 ## Fuera de alcance (no implementar)
 Recordatorios, notificaciones, correo, integración con Outlook (futuro), subtareas, adjuntos, multiusuario, sincronización, login, backend. Nada de librerías externas ni CDN.
 
-Tampoco: hitos, riesgos, bloqueos, semáforos ni líneas de estado de proyecto (están en la herramienta de seguimiento), vista de calendario (está en Outlook), fecha límite en las tareas, estado o fecha en los temas. Se descartaron a propósito tras maquetarlos: la app no es el seguimiento del proyecto, es la lista de lo que el usuario mueve.
+Tampoco: hitos, riesgos, bloqueos, semáforos ni líneas de estado de proyecto (están en la herramienta de seguimiento), vista de calendario (está en Outlook), fecha límite en las tareas, estado o fecha en los asuntos, **enlace entre asuntos y tareas** (ni `temaId` ni agrupar tareas por asunto), avisos en Radar. Se descartaron a propósito tras maquetarlos: la app no es el seguimiento del proyecto, es la lista de lo que el usuario mueve más el radar de lo que vigila.
 
 ## Calidad
-- Todo en `index.html`. Código organizado en secciones: estado, parser, cálculo de columnas, render (Día y Proyectos), acciones, persistencia, ajustes.
-- Migración de datos: un `tareas.json` con `v: 1` sin `temas` ni `temaId` debe cargar sin más (`temas: []`, `temaId: null`).
+- Todo en `index.html`. Código organizado en secciones: estado, parser, cálculo de columnas, render (Día y Radar), acciones, persistencia, ajustes.
+- Migración de datos: un `tareas.json` con `v: 1` sin `radar` carga con `radar: []`. Si trae `temas`, `temaId` en tareas o `programId` en tareas (versión intermedia ya retirada), se ignoran y se descartan al guardar; opcionalmente, cada tema con tareas abiertas se convierte en un asunto con el mismo nombre y bloque.
 - Render completo a partir del estado tras cada acción (sin DOM parcial frágil). Debe ir fluido con 500 tareas.
 - Fechas siempre en local, formato ISO `YYYY-MM-DD` en datos; mostrar como "jue 8", "12/10" o "nov".
 - Botones y chips son `<button>` reales; `aria-label` en los de icono.
