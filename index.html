@@ -9,15 +9,16 @@
 <meta name="theme-color" content="#1b1b1a">
 <style>
 :root{
-  --r:10px;--bg:#eeeff2;--panel:#fff;--text:#1b1b1a;--muted:#5b5a56;--line:#e2e0d9;--line2:#c9c7c0;--soft:#fafaf8;--hover:#ebe9e2;--future:#2f6aa3;
-  --urgent-bg:#fff7f5;--claim-bg:#faf6f1;--wait-bg:#f1eae1;--wait-line:#dccbb8;
-  --dot-do:#1b1b1a;--amber:#8a5a2b;--red:#c2321e;--me-bg:#1b1b1a;--me-fg:#fff;--accent:#1f4e8c;--shadow:0 6px 24px rgba(0,0,0,.18);
+  --r:10px;--bg:#b9bdc5;--panel:#e3e5e9;--col:#c9ccd3;--soft:#eaecef;--hover:#d4d7dd;--text:#1b1b1a;--muted:#4a4d53;--line:#c4c7ce;--line2:#949aa4;
+  --future:#27598f;--accent:#1f4e8c;--red:#b02c1a;--amber:#7a4f24;--star:#b0800c;
+  --urgent-bg:#efdcd8;--claim-bg:#e9e3d9;--wait-bg:#ded6c9;--wait-line:#bfb09a;--proj-mix:26%;--shadow:0 6px 24px rgba(0,0,0,.18);
 }
 :root[data-theme=dark]{
-  --r:8px;--bg:#17181a;--panel:#202225;--text:#ececea;--muted:#a3a19c;--line:#33363a;--line2:#4a4d52;--soft:#26282b;--hover:#2d3034;--future:#7fb0e6;
-  --urgent-bg:#3a2420;--claim-bg:#2b2823;--wait-bg:#2a2622;--wait-line:#4a3f33;
-  --dot-do:#e8e8e6;--amber:#e0a04a;--red:#ee6a55;--me-bg:#ececea;--me-fg:#1b1b1a;--accent:#8db4ea;--shadow:0 6px 24px rgba(0,0,0,.6);color-scheme:dark;
+  --r:8px;--bg:#3a3e46;--panel:#4b5059;--col:var(--bg);--soft:#535862;--hover:#5d626c;--text:#f6f6f3;--muted:#cdd0d6;--line:#5e636d;--line2:#7f858f;
+  --future:#b4d4f7;--accent:#b4d4f7;--red:#ff8d7a;--amber:#f5bd68;--star:#f7cd5a;
+  --urgent-bg:#5c3b37;--claim-bg:#574f45;--wait-bg:#524a40;--wait-line:#7c6d59;--proj-mix:32%;--shadow:0 6px 24px rgba(0,0,0,.6);color-scheme:dark;
 }
+[hidden]{display:none!important}
 *{box-sizing:border-box}
 html,body{height:100%;margin:0}
 body{background:var(--bg);color:var(--text);font:14px/1.35 'IBM Plex Sans',system-ui,-apple-system,"Segoe UI",sans-serif;display:flex;flex-direction:column;overflow:hidden}
@@ -64,10 +65,10 @@ main{flex:1;min-height:0;display:grid;grid-template-columns:35% 1fr;gap:20px;pad
 .lane-h{display:flex;justify-content:space-between;font-size:11px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;color:var(--muted);margin:0 2px 6px}
 .lane.others{background:var(--wait-bg);border:1px solid var(--wait-line);border-radius:8px;padding:8px}
 .lane.others .lane-h{color:var(--amber)}
-.col.waiting .lane.others{background:rgba(255,255,255,.35)}
-.col{background:var(--bg);border:1px solid var(--line);border-radius:var(--r);padding:10px 8px;display:flex;flex-direction:column;min-height:0;min-width:0}
+.col.waiting .lane.others{background:color-mix(in srgb,var(--panel) 40%,transparent)}
+.col{background:var(--col);border:1px solid var(--line);border-radius:var(--r);padding:10px 8px;display:flex;flex-direction:column;min-height:0;min-width:0}
 .col.waiting{background:var(--wait-bg);border-color:var(--wait-line)}
-.col.waiting .colhead{color:var(--amber);border-color:#b89a7c}
+.col.waiting .colhead{color:var(--amber);border-color:var(--wait-line)}
 .col .colhead{font-size:12px;letter-spacing:.03em;text-transform:uppercase}
 .over{outline:2px dashed var(--accent);outline-offset:-3px}
 .empty{color:var(--muted);font-size:12px;padding:8px 4px}
@@ -87,18 +88,17 @@ main{flex:1;min-height:0;display:grid;grid-template-columns:35% 1fr;gap:20px;pad
 .c-btns{display:flex;gap:4px;margin-left:auto}
 .c-btns button{height:26px;border:1px solid var(--line);background:var(--soft);color:var(--muted);border-radius:4px;padding:0 8px;font-size:11.5px}
 .c-btns button:hover{background:var(--hover)}
-.c-btns .urgon{background:var(--red);border-color:var(--red);color:#fff}
+.c-btns .urgon{background:var(--red);border-color:var(--red);color:var(--panel)}
 .c-btns .ok{background:var(--text);color:var(--bg);border-color:var(--text);padding:0 10px}
 .claimtxt{color:var(--amber);font-size:12px;font-weight:600}
 .chip{border:0;border-radius:10px;padding:2px 9px;font-size:12px;font-weight:500;line-height:1.35;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .chip.me{background:transparent;color:var(--muted);border:1px solid var(--line2);font-weight:400;padding:1px 8px}
 .chip.person{background:var(--cb);color:var(--cf)}
-:root[data-theme=dark] .chip.person{background:color-mix(in srgb,var(--cf) 35%,var(--panel));color:color-mix(in srgb,var(--cb) 90%,#fff)}
-.chip.proj{border-radius:4px;padding:2px 8px;font-weight:600}
-.chip.noproj{background:transparent;border:1px dashed #c58aa0;color:#8c2f52;font-weight:500;border-radius:4px;padding:1px 7px}
-:root[data-theme=dark] .chip.noproj{color:#e39bb6}
-.chip.tema{background:transparent;border:1px dashed var(--line2);color:var(--muted);font-weight:400;border-radius:4px;padding:1px 7px}
-.chip.tema::before{content:"› "}
+:root[data-theme=dark] .chip.person{background:color-mix(in srgb,var(--cf) 55%,var(--panel));color:color-mix(in srgb,var(--cb) 92%,#fff)}
+.chip.proj{border-radius:4px;padding:2px 8px;font-weight:600;background:color-mix(in srgb,var(--pcc) var(--proj-mix),var(--panel));color:color-mix(in srgb,var(--pcc) 70%,var(--text))}
+:root[data-theme=dark] .chip.proj{color:color-mix(in srgb,var(--pcc) 35%,#fff)}
+.chip.noproj{background:transparent;border:1px dashed #c58aa0;color:var(--muted);font-weight:400;border-radius:4px;padding:1px 7px}
+:root[data-theme=dark] .c-btns button,:root[data-theme=dark] .ai .acts button{background:var(--soft);border-color:var(--line2);color:var(--text)}
 .dtxt.claim{color:var(--amber);font-weight:600}
 .dtxt{background:none;border:0;padding:0 2px;color:var(--muted);font-size:12px;border-radius:4px}
 .dtxt:hover{background:var(--hover)}
@@ -116,7 +116,7 @@ main{flex:1;min-height:0;display:grid;grid-template-columns:35% 1fr;gap:20px;pad
 .row .r2 .chip{flex:0 1 auto;min-width:0;max-width:100%}
 .row .r2 .chip[data-act="person"]{flex:none}
 .row .r2 .chip.proj{padding:0 6px;border-radius:4px;font-weight:600}
-.row .r2 .chip.tema,.row .r2 .chip.noproj{padding:0 6px;border-radius:4px}
+.row .r2 .chip.noproj{padding:0 6px;border-radius:4px}
 .row .r2 .dtxt{margin-left:auto;font-size:11px;white-space:nowrap;flex:none}
 .hb{display:none;position:absolute;right:3px;top:3px;gap:0;background:var(--panel);border:1px solid var(--line);border-radius:7px;padding:1px;box-shadow:0 1px 4px rgba(0,0,0,.12)}
 .row:hover .hb,.row.sel .hb{display:flex}
@@ -129,52 +129,63 @@ footer{display:flex;gap:18px;align-items:center;padding:6px 24px 20px;color:var(
 footer .lg{display:inline-flex;align-items:center;gap:6px;margin-right:12px}
 footer .lg i{width:10px;height:10px;border-radius:50%;display:inline-block}
 .linkbtn{background:none;border:0;color:var(--accent);text-decoration:underline;padding:0;font-size:12px}
-/* vista Proyectos */
-main.proy{display:block;overflow:auto}
-.band{margin-top:6px}
-.band:first-child{margin-top:0}
-.band-h{display:flex;align-items:center;gap:8px;margin:4px 2px 6px;font-size:13px;font-weight:600;letter-spacing:.04em;text-transform:uppercase}
-.band-h i{width:10px;height:10px;border-radius:50%;flex:none}
-.board{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}
-.pc{background:color-mix(in srgb,var(--pc) 7%,var(--panel));border:1px solid color-mix(in srgb,var(--pc) 30%,var(--panel));border-top:4px solid var(--pc);border-radius:var(--r);min-width:0;display:flex;flex-direction:column}
-.pc.transv{background:color-mix(in srgb,var(--pc) 3%,var(--panel));border-style:dashed;border-top-style:solid}
-:root[data-theme=dark] .pc{background:color-mix(in srgb,var(--pc) 10%,var(--panel));border-color:color-mix(in srgb,var(--pc) 35%,var(--panel))}
-:root[data-theme=dark] .pc.transv{background:color-mix(in srgb,var(--pc) 3%,var(--panel))}
-.pc-h{display:flex;align-items:baseline;gap:8px;padding:9px 12px 7px;border-bottom:1px solid color-mix(in srgb,var(--pc) 25%,var(--panel))}
-.pc-h b{font-size:14px;font-weight:600;flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:color-mix(in srgb,var(--pc) 70%,var(--text))}
-:root[data-theme=dark] .pc-h b{color:color-mix(in srgb,var(--pc) 55%,var(--text))}
-.pc-h .sub{font-size:11px;color:var(--muted);font-weight:400}
-.pc-h .n{font-size:12px;color:var(--muted);white-space:nowrap}
-.n.warn{color:var(--amber);font-weight:600}
-.pc-b{flex:1;padding:4px 6px 2px;display:flex;flex-direction:column;gap:6px}
-.tm-h{display:flex;align-items:baseline;gap:6px;padding:5px 6px 2px;font-size:13px;font-weight:600}
-.tm-h::before{content:"›";color:var(--muted);font-weight:400}
-.tm-h .tm-n{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.tm-h .n{font-size:11.5px;color:var(--muted);font-weight:400;white-space:nowrap}
-.tm-h .n.warn{color:var(--amber);font-weight:600}
-.tm-h .add{margin-left:auto;border:0;background:none;color:var(--accent);font-size:11.5px;font-weight:400;padding:0;opacity:0}
-.tm:hover .tm-h .add,.tm-h .add:focus-visible{opacity:1}
-.tm.loose .tm-h{font-weight:500;color:var(--muted)}
-.tm.loose .tm-h::before{content:""}
-.tr{display:flex;gap:8px;align-items:center;padding:4px 6px 4px 6px;margin:2px 0;border-radius:5px;font-size:12.5px;background:var(--panel);border:1px solid color-mix(in srgb,var(--pc) 14%,var(--panel))}
-.tr:hover{background:var(--hover)}
-.tr.other{background:var(--claim-bg)}
-.tr.urgente .tt{font-weight:600}
-.tr.sel{box-shadow:inset 0 0 0 2px var(--accent)}
-.tr .tt{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;cursor:text}
-.tr .ck{width:14px;height:14px;padding:0;border-radius:50%;border:1.5px solid var(--line2);background:var(--panel);flex:none;position:relative}
-.tr .ck::after{content:"";position:absolute;inset:-5px}
-.tr .ck:hover{border-color:var(--text)}
-.tr.urgente .ck{border-color:var(--red)}
-.tr .chip{font-size:11px;padding:0 6px;flex:none}
-.tr .dtxt{font-size:11px;white-space:nowrap;flex:none}
-.pc .none{padding:8px 12px;font-size:12px;color:var(--muted);font-style:italic}
-.pc-f{display:flex;align-items:center;gap:8px;padding:6px 12px 8px;border-top:1px solid color-mix(in srgb,var(--pc) 25%,var(--panel));font-size:11.5px;color:var(--muted)}
-.pc-f .add{border:0;background:none;color:var(--accent);font-size:11.5px;padding:0;margin-left:auto}
-.pc-f .add:hover{text-decoration:underline}
-.add-tema{width:100%;font-size:12px;padding:3px 6px}
-.pop-in{width:100%;margin:2px 0 4px}
-@media (max-width:1100px){.board{grid-template-columns:repeat(2,minmax(0,1fr))}}
+/* vista Radar */
+main.rdr{display:block;overflow:auto}
+.sum{display:flex;flex-wrap:wrap;gap:6px 18px;font-size:13px;color:var(--muted);padding:0 4px 8px}
+.sum b{color:var(--text);font-weight:600}
+.radar{background:var(--panel);border:1px solid var(--line);border-radius:var(--r);overflow:hidden}
+.band{display:flex;align-items:center;gap:8px;padding:7px 14px;background:var(--soft);border-top:1px solid var(--line);border-bottom:1px solid var(--line);font-size:11px;font-weight:600;letter-spacing:.04em;text-transform:uppercase}
+.radar .band:first-child{border-top:0}
+.band i{width:9px;height:9px;border-radius:50%}
+.band .c{color:var(--muted);font-weight:400;text-transform:none;letter-spacing:0}
+.pr{display:grid;grid-template-columns:220px 1fr;border-bottom:1px solid var(--line)}
+.pr:last-child{border-bottom:0}
+.pr.over{outline-offset:-3px}
+.pr .pn{padding:9px 12px 9px 10px;border-left:4px solid var(--pc);display:flex;flex-direction:column;gap:2px;min-width:0}
+.pr .pn b{font-size:13.5px;font-weight:600;color:color-mix(in srgb,var(--pc) 70%,var(--text));overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+:root[data-theme=dark] .pr .pn b{color:color-mix(in srgb,var(--pc) 45%,#fff)}
+.pr .pn .sub{font-size:11px;color:var(--muted);font-weight:400}
+.pr .pn .n{font-size:11.5px;color:var(--muted)}
+.pr.transv .pn b{color:var(--muted);font-weight:500}
+.pr .it{padding:5px 10px 6px 6px;display:flex;flex-direction:column;gap:1px;min-width:0}
+.ai{display:grid;grid-template-columns:16px 18px 1fr auto auto;gap:6px;align-items:center;padding:4px 6px;border-radius:6px;min-width:0}
+.ai:hover{background:var(--hover)}
+.ai.sel{box-shadow:inset 0 0 0 2px var(--accent)}
+.ai .h{color:var(--line2);font-size:13px;cursor:grab;text-align:center;opacity:0}
+.ai:hover .h{opacity:1}
+.ai .st{border:0;background:none;padding:0;font-size:15px;line-height:1;color:var(--line2);text-align:center}
+.ai .st.on{color:var(--star)}
+.ai:hover .st{color:var(--star)}
+.ai .tx{font-size:13.5px;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;cursor:text}
+.ai .tx .nt{color:var(--muted);font-size:12.5px}
+.ai .tx .nt::before{content:" · "}
+.ai.foco .tx{font-weight:600}
+.ai.park{opacity:.55}
+.ai.park .tx{font-style:italic}
+.ai .since{font-size:11px;color:var(--muted);white-space:nowrap;font-variant-numeric:tabular-nums}
+.ai .acts{display:flex;gap:2px;opacity:0;min-width:168px;justify-content:flex-end}
+.ai:hover .acts,.ai.sel .acts{opacity:1}
+.ai .acts button{border:1px solid var(--line);background:var(--panel);color:var(--muted);border-radius:4px;height:22px;padding:0 7px;font-size:11px}
+.ai .acts button:hover{background:var(--hover);color:var(--text)}
+.ai .inline-edit{grid-column:3;padding:1px 6px}
+.add{display:flex;align-items:center;gap:6px;padding:2px 6px 0 40px}
+.add input{border:0;background:transparent;font-size:12.5px;color:var(--text);width:100%;min-width:0;padding:3px 0;border-bottom:1px dashed transparent;border-radius:0}
+.add input::placeholder{color:var(--line2)}
+.add input:hover::placeholder,.add input:focus::placeholder{color:var(--muted)}
+.add input:focus{outline:0;border-bottom-color:var(--line2)}
+.none{font-size:12.5px;color:var(--muted);font-style:italic;padding:4px 6px 0 40px}
+.pr.vacio .it{flex-direction:row;align-items:center;gap:14px;min-width:0}
+.pr.vacio .add{padding-left:0;flex:1}
+.pr.vacio .none{padding-left:6px;white-space:nowrap}
+.rdone{font-size:11.5px;color:var(--muted);padding:3px 6px 0 40px;user-select:none}
+.rdone .tg{cursor:pointer}
+.rdone .tg:hover{color:var(--text)}
+.rdone .lst{display:none;padding:2px 0 0;flex-direction:column;gap:2px}
+.rdone.open .lst{display:flex}
+.rdone .ri{cursor:pointer}
+.rdone .ri span{text-decoration:line-through;font-size:12.5px}
+.rdone .ri em{font-style:normal;font-size:11px;margin-left:6px}
+@media (max-width:700px){.pr{grid-template-columns:1fr}.ai{grid-template-columns:16px 18px 1fr auto}.ai .acts{display:none}}
 /* overlays */
 #pop{position:fixed;display:none;z-index:50;background:var(--panel);border:1px solid var(--line);border-radius:10px;box-shadow:var(--shadow);padding:6px;min-width:150px;max-height:60vh;overflow:auto}
 #pop button.it{display:flex;width:100%;align-items:center;gap:8px;border:0;background:none;text-align:left;padding:5px 8px;border-radius:6px}
@@ -213,16 +224,16 @@ kbd{background:var(--hover);border:1px solid var(--line);border-radius:4px;paddi
 <body>
 <header>
   <h1>Tareas</h1><span class="date-now" id="dnow"></span>
-  <div class="seg" role="tablist" id="tabs"><button data-v="dia" class="on">Día <span class="k">1</span></button><button data-v="proyectos">Proyectos <span class="k">2</span></button></div>
+  <div class="seg" role="tablist" id="tabs"><button data-v="dia" class="on">Día <span class="k">1</span></button><button data-v="radar">Radar <span class="k">2</span></button></div>
   <span class="sp"></span>
   <div id="filters"></div>
   <input id="search" type="search" placeholder="Buscar ( / )" aria-label="Buscar">
   <button class="btn" id="btnDone">Hechas (0)</button>
   <button class="btn" id="btnSet">Ajustes</button>
 </header>
-<div class="quick">
+<div class="quick" id="quick">
   <input id="q" type="text" autocomplete="off" spellcheck="false" placeholder="Nueva tarea…  ej: Pedir presupuesto @Persona #Proyecto vie !" aria-label="Línea rápida">
-  <div class="help"><b>@</b>persona · <b>#</b>proyecto · <b>^</b>tema (opcional) · <b>hoy mañ lun…dom 12/10 +3 nov</b> fecha · <b>!</b> urgente · <kbd>Ctrl</kbd>+<kbd>Intro</kbd> a Hoy &nbsp;|&nbsp; <kbd>N</kbd> nueva · <kbd>/</kbd> buscar · <kbd>?</kbd> atajos · <kbd>1</kbd> <kbd>2</kbd> vista · con fila seleccionada: <kbd>H</kbd> <kbd>M</kbd> <kbd>S</kbd> <kbd>P</kbd> <kbd>L</kbd> <kbd>E</kbd> <kbd>U</kbd> <kbd>X</kbd></div>
+  <div class="help"><b>@</b>persona · <b>#</b>proyecto · <b>hoy mañ lun…dom 12/10 +3 nov</b> fecha · <b>!</b> urgente · <kbd>Ctrl</kbd>+<kbd>Intro</kbd> a Hoy &nbsp;|&nbsp; <kbd>N</kbd> nueva · <kbd>/</kbd> buscar · <kbd>?</kbd> atajos · <kbd>1</kbd> <kbd>2</kbd> Día / Radar · con fila seleccionada: <kbd>H</kbd> <kbd>M</kbd> <kbd>S</kbd> <kbd>P</kbd> <kbd>L</kbd> <kbd>E</kbd> <kbd>U</kbd> <kbd>X</kbd></div>
 </div>
 <main id="board"></main>
 <footer id="foot"></footer>
@@ -249,7 +260,7 @@ const COLS = [
 const COLNAME = Object.fromEntries(COLS.map(c => [c.k, c.n]));
 
 let S;
-const UI = { view:'dia', addTema:null, todayLanes:{mine:[],others:[]}, filter:{kind:'all',programId:null,projectId:null,q:''}, sel:null, order:[], drag:null, panel:null, modal:null, file:{state:'none',name:'',time:''} };
+const UI = { view:'dia', rf:'all', rsel:null, rorder:[], rOpen:new Set(), rdrag:null, rpanel:null, focusAdd:null, todayLanes:{mine:[],others:[]}, filter:{kind:'all',programId:null,projectId:null,q:''}, sel:null, order:[], drag:null, panel:null, modal:null, file:{state:'none',name:'',time:''} };
 
 const uid = p => p + Date.now().toString(36) + Math.random().toString(36).slice(2,6);
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -259,33 +270,39 @@ function defaults(){
   return { v:1,
     settings:{captureIn:'week',waitDays:5,warnToday:5,theme:'light'},
     programs:[{id:'p1',name:'General',color:PROG_COLORS[0]}], projects:[],
-    people:[{id:'me',name:'Yo',color:'black'}], temas:[], tasks:[] };
+    people:[{id:'me',name:'Yo',color:'black'}], radar:[], tasks:[] };
 }
 function normalize(d){
   if(!d || typeof d !== 'object' || !Array.isArray(d.tasks)) return null;
-  const x = defaults();
+  const x = defaults(), hadRadar = Array.isArray(d.radar);
   x.settings = Object.assign(x.settings, d.settings || {});
   x.programs = Array.isArray(d.programs) ? d.programs : x.programs;
   x.projects = Array.isArray(d.projects) ? d.projects : [];
   x.people = Array.isArray(d.people) ? d.people : [];
-  x.temas = (Array.isArray(d.temas) ? d.temas : []).filter(m => m && m.id && m.name)
-    .map(m => ({id:m.id, programId:m.programId || null, projectId:m.projectId || null, name:String(m.name), note:m.note || ''}));
   if(!x.people.some(p => p.id === 'me')) x.people.unshift({id:'me',name:'Yo',color:'black'});
   x.people.find(p => p.id === 'me').color = 'black';
   if(!x.programs.length) x.programs.push({id:'p1',name:'General',color:PROG_COLORS[0]});
   x.programs.forEach((g,i) => { if(!PROG_COLORS.includes(g.color)) g.color = PROG_COLORS[i % PROG_COLORS.length]; });
-  x.temas.forEach(m => {
-    if(m.projectId){ const pj = x.projects.find(p => p.id === m.projectId); if(pj) m.programId = pj.programId; else m.projectId = null; }
-    if(m.programId && !x.programs.some(g => g.id === m.programId)) m.programId = null;
+  // radar: asuntos. Si el archivo viene de la versión con temas, cada tema con tareas abiertas pasa a ser un asunto.
+  x.radar = (hadRadar ? d.radar : []).filter(r => r && r.id && r.text).map(r => ({
+    id:r.id, programId:r.programId || null, projectId:r.projectId || null, text:String(r.text), note:r.note || '', order:+r.order || 0,
+    foco:!!r.foco, parked:!!r.parked, createdAt:String(r.createdAt || today()).slice(0,10), doneAt:r.doneAt ? String(r.doneAt).slice(0,10) : null}));
+  if(!hadRadar && Array.isArray(d.temas)){
+    d.temas.forEach(m => {
+      if(!m || !m.id || !m.name || !d.tasks.some(t => t && t.temaId === m.id && !t.done)) return;
+      x.radar.push({id:uid('r'), programId:m.programId || null, projectId:m.projectId || null, text:String(m.name), note:m.note || '',
+        order:0, foco:false, parked:false, createdAt:today(), doneAt:null});
+    });
+  }
+  x.radar.forEach(r => {
+    if(r.projectId){ const pj = x.projects.find(p => p.id === r.projectId); if(pj) r.programId = pj.programId; else r.projectId = null; }
+    if(r.programId && !x.programs.some(g => g.id === r.programId)) r.programId = null;
   });
+  rRenumAll(x.radar);
   x.tasks = d.tasks.map((t,i) => Object.assign({
-    id:uid('t'),title:'',personId:'me',projectId:null,programId:null,temaId:null,type:'hacer',date:today(),waiting:false,remindOn:null,
+    id:uid('t'),title:'',personId:'me',projectId:null,type:'hacer',date:today(),waiting:false,remindOn:null,
     note:'',order:i,done:false,doneAt:null,createdAt:new Date().toISOString()}, t, t.type === 'urgente' ? {} : {type:'hacer'}));
-  x.tasks.forEach(t => {
-    fixOwner(t);
-    if(t.temaId && !x.temas.some(m => m.id === t.temaId)) t.temaId = null;
-    if(t.projectId || !x.programs.some(g => g.id === t.programId)) t.programId = null;
-  });
+  x.tasks.forEach(t => { delete t.temaId; delete t.programId; fixOwner(t); });
   return x;
 }
 // Una tarea de otra persona (no urgente) siempre está en espera hasta su fecha de reclamo.
@@ -352,7 +369,6 @@ function parseLine(text){
     if(w === '!'){ out.type = 'urgente'; continue; }
     if(w.length > 1 && w[0] === '@'){ out.person = w.slice(1); continue; }
     if(w.length > 1 && w[0] === '#'){ out.project = w.slice(1); continue; }
-    if(w.length > 1 && w[0] === '^'){ out.tema = w.slice(1); continue; }
     const d = parseDateToken(w, td);
     if(d){ out.date = d; continue; }
     words.push(w);
@@ -367,25 +383,10 @@ function findByName(list, token){
   const pre = list.filter(x => norm(x.name).startsWith(n));
   return pre.length === 1 ? pre[0] : null;
 }
-function findTema(token, projectId){
-  const n = norm(token.replace(/_/g,' '));
-  let c = S.temas.filter(m => norm(m.name) === n);
-  if(!c.length){ c = S.temas.filter(m => norm(m.name).startsWith(n)); return c.length === 1 ? c[0] : null; }
-  if(c.length > 1){
-    const pg = projectId && (project(projectId) || {}).programId;
-    const score = m => (m.projectId && m.projectId === projectId) ? 0 : (pg && m.programId === pg && !m.projectId) ? 1 : !m.programId ? 2 : 3;
-    c.sort((a,b) => score(a) - score(b));
-  }
-  return c[0];
-}
-function resolve(p, base){
+function resolve(p){
   const patch = {}, bad = [];
   if(p.person != null){ const x = findByName(S.people,p.person); x ? patch.personId = x.id : bad.push('@'+p.person); }
   if(p.project != null){ const x = findByName(S.projects,p.project); x ? patch.projectId = x.id : bad.push('#'+p.project); }
-  if(p.tema != null){
-    const pj = patch.projectId !== undefined ? patch.projectId : (base && base.projectId);
-    const x = findTema(p.tema, pj); x ? patch.temaId = x.id : bad.push('^' + p.tema);
-  }
   if(p.type) patch.type = p.type;
   if(p.date){ patch.date = p.date; patch.waiting = false; patch.remindOn = null; }
   return {patch, bad};
@@ -418,34 +419,23 @@ function colOf(t, td){
   return 'later';
 }
 const isClaim = (t, td) => isWait(t) && remindOf(t) <= td;
-function passes(t, forProj){
+function passes(t){
   const f = UI.filter;
   if(f.kind === 'mine' && t.personId !== 'me') return false;
   if(f.kind === 'claim' && !(t.personId !== 'me' || t.waiting)) return false;
-  if(!forProj && (f.programId || f.projectId)){
-    const pr = S.projects.find(p => p.id === t.projectId), pgId = taskProgramId(t);
-    if(!pgId) return false;
-    if(f.programId && pgId !== f.programId) return false;
-    if(f.projectId && (!pr || pr.id !== f.projectId)) return false;
+  if(f.programId || f.projectId){
+    const pr = S.projects.find(p => p.id === t.projectId);
+    if(!pr) return false;
+    if(f.programId && pr.programId !== f.programId) return false;
+    if(f.projectId && pr.id !== f.projectId) return false;
   }
-  if(f.q && !norm(t.title + ' ' + (t.note || '') + ' ' + ((tema(t.temaId) || {}).name || '')).includes(norm(f.q))) return false;
+  if(f.q && !norm(t.title + ' ' + (t.note || '')).includes(norm(f.q))) return false;
   return true;
 }
 const person = id => S.people.find(p => p.id === id) || S.people[0];
 const project = id => S.projects.find(p => p.id === id);
-const tema = id => S.temas.find(m => m.id === id);
 const program = id => S.programs.find(g => g.id === id);
-function taskProgramId(t){
-  const pr = project(t.projectId); if(pr) return pr.programId;
-  return t.programId || ((tema(t.temaId) || {}).programId) || null;
-}
-function pcolor(t){ const pg = program(taskProgramId(t)); return pg ? pg.color : '#c58aa0'; }
-function temaWhere(m){ return m.projectId ? ((project(m.projectId) || {}).name || '') : m.programId ? ((program(m.programId) || {}).name || '') + ' · transversal' : 'Global'; }
-function fixProg(t){ if(t.projectId) t.programId = null; }
-function addTema(name, projectId, programId){
-  const m = {id:uid('m'), programId: projectId ? (project(projectId) || {}).programId || null : (programId || null), projectId: projectId || null, name:name.trim(), note:''};
-  S.temas.push(m); save(); return m;
-}
+function pcolor(t){ const pr = project(t.projectId), pg = pr && program(pr.programId); return pg ? pg.color : '#c58aa0'; }
 const taskById = id => S.tasks.find(t => t.id === id);
 const maxOrder = () => S.tasks.reduce((m,t) => Math.max(m,t.order||0), 0);
 
@@ -458,26 +448,18 @@ function personChip(t){
 }
 const other = (t, td) => t.personId !== 'me' || isClaim(t,td);
 const dcls = (t, td) => isWait(t) ? '' : t.date < td ? ' late' : t.date > td ? ' fut' : '';
-function temaChip(t){
-  const m = tema(t.temaId);
-  return m ? `<button class="chip tema" data-act="tema" title="Tema: ${esc(m.name)}">${esc(m.name)}</button>` : '';
-}
 function projChip(t){
   const pr = project(t.projectId);
-  if(!pr){
-    const pg = program(taskProgramId(t));
-    if(!pg) return `<button class="chip noproj" data-act="proj" aria-label="Sin proyecto: asignar" title="Sin proyecto · clic para asignar">proyecto</button>`;
-    return `<button class="chip proj" data-act="proj" style="background:color-mix(in srgb,${pg.color} 18%,var(--panel));color:color-mix(in srgb,${pg.color} 70%,var(--text))" title="${esc(pg.name)} · sin proyecto (clic para asignar)">${esc(pg.name)}</button>`;
-  }
-  const pg = S.programs.find(g => g.id === pr.programId), c = pg ? pg.color : '#6b7889';
-  return `<button class="chip proj" data-act="proj" style="background:color-mix(in srgb,${c} 18%,var(--panel));color:color-mix(in srgb,${c} 70%,var(--text))" title="${esc((pg ? pg.name + ' · ' : '') + pr.name)}">${esc(pr.name)}</button>`;
+  if(!pr) return `<button class="chip noproj" data-act="proj" aria-label="Sin proyecto: asignar" title="Sin proyecto · clic para asignar">proyecto</button>`;
+  const pg = program(pr.programId);
+  return `<button class="chip proj" data-act="proj" style="--pcc:${pg ? pg.color : '#6b7889'}" title="${esc((pg ? pg.name + ' · ' : '') + pr.name)}">${esc(pr.name)}</button>`;
 }
 function cardHtml(t, td){
   const claim = isClaim(t,td);
   return `<div class="card ${t.type}${other(t,td) ? ' other' : ''}${UI.sel === t.id ? ' sel' : ''}" style="--pc:${pcolor(t)}" draggable="true" data-id="${t.id}">
     <div class="c-top"><span class="title" data-act="edit" title="Clic para editar">${esc(t.title)}</span>
       ${claim ? `<button class="dtxt late" data-act="date" title="Cambiar fecha de reclamo">desde ${+remindOf(t).slice(8)}/${+remindOf(t).slice(5,7)}</button>` : `<button class="dtxt${dcls(t,td)}" data-act="date">${fmtDate(t.date)}</button>`}</div>
-    <div class="c-meta">${projChip(t)}${temaChip(t)}${personChip(t)}
+    <div class="c-meta">${projChip(t)}${personChip(t)}
       <span class="c-btns"><button data-act="tmr" aria-label="Mover a mañana" title="Mañana (M)">→ mañ</button><button data-act="fri" aria-label="Mover a esta semana" title="Esta semana (S)">→ vie</button><button data-act="wait" aria-label="Pasar a esperando" title="Esperando (E)">⏸ espera</button><button class="${t.type === 'urgente' ? 'urgon' : ''}" data-act="urg" aria-label="Urgente" title="Urgente (U)">!</button><button class="ok" data-act="done" aria-label="Marcar como hecha" title="Hecha (X)">✓</button></span></div>
   </div>`;
 }
@@ -485,7 +467,7 @@ function rowHtml(t, td, col){
   const dtxt = col === 'waiting' ? `reclamar ${fmtDate(remindOf(t))}` : fmtDate(t.date);
   return `<div class="row ${t.type}${other(t,td) ? ' other' : ''}${UI.sel === t.id ? ' sel' : ''}" style="--pc:${pcolor(t)}" draggable="true" data-id="${t.id}">
     <div class="r1"><span class="title" data-act="edit" title="${esc(t.title)}">${esc(t.title)}</span></div>
-    <div class="r2">${projChip(t)}${temaChip(t)}${personChip(t)}<button class="dtxt${col === 'waiting' ? '' : dcls(t,td)}" data-act="date">${dtxt}</button></div>
+    <div class="r2">${projChip(t)}${personChip(t)}<button class="dtxt${col === 'waiting' ? '' : dcls(t,td)}" data-act="date">${dtxt}</button></div>
     <div class="hb"><button data-act="sun" aria-label="A Hoy">☀</button>${col === 'tomorrow' ? '' : '<button data-act="tmr">→ mañ</button>'}<button data-act="wait" aria-label="Esperar">⏸</button><button data-act="urg" aria-label="Urgente" title="Urgente (U)">!</button><button data-act="done" aria-label="Hecha">✓</button></div>
   </div>`;
 }
@@ -497,15 +479,23 @@ function lanesHtml(tasks, fn, colKey, empty){
   return lane(m,'mine','Mías') + lane(o,'others','De otros');
 }
 function renderFilters(){
-  const f = UI.filter, all = f.kind === 'all' && !f.programId;
-  let h = `<button class="fchip${all ? ' on' : ''}" data-f="all">Todo</button>
+  const f = UI.filter, dot = c => `<i style="display:inline-block;width:8px;height:8px;border-radius:50%;background:${c};margin-right:6px"></i>`;
+  let h;
+  if(UI.view === 'radar'){
+    h = `<button class="fchip${UI.rf === 'all' ? ' on' : ''}" data-rf="all">Todo</button><button class="fchip${UI.rf === 'foco' ? ' on' : ''}" data-rf="foco">★ Foco</button>`;
+    if(S.programs.length) h += '<span class="fsep"></span>';
+    h += S.programs.map(g => `<button class="fchip${UI.rf === g.id ? ' on' : ''}" data-rf="${g.id}">${dot(g.color)}${esc(g.name)}</button>`).join('');
+  }else{
+    const all = f.kind === 'all' && !f.programId;
+    h = `<button class="fchip${all ? ' on' : ''}" data-f="all">Todo</button>
     <button class="fchip${f.kind === 'mine' ? ' on' : ''}" data-f="mine">Mías</button>
     <button class="fchip${f.kind === 'claim' ? ' on' : ''}" data-f="claim">Reclamar</button>`;
-  if(S.programs.length) h += '<span class="fsep"></span>';
-  h += S.programs.map(p => `<button class="fchip${f.programId === p.id ? ' on' : ''}" data-f="prg" data-id="${p.id}"><i style="display:inline-block;width:8px;height:8px;border-radius:50%;background:${p.color};margin-right:6px"></i>${esc(p.name)}</button>`).join('');
-  if(f.programId){
-    const prs = S.projects.filter(p => p.programId === f.programId).sort((a,b) => (b.fav?1:0)-(a.fav?1:0));
-    h += '<span class="fsep"></span>' + prs.map(p => `<button class="fchip sub${f.projectId === p.id ? ' on' : ''}" data-f="prj" data-id="${p.id}">${p.fav ? '★ ' : ''}${esc(p.name)}</button>`).join('');
+    if(S.programs.length) h += '<span class="fsep"></span>';
+    h += S.programs.map(p => `<button class="fchip${f.programId === p.id ? ' on' : ''}" data-f="prg" data-id="${p.id}">${dot(p.color)}${esc(p.name)}</button>`).join('');
+    if(f.programId){
+      const prs = S.projects.filter(p => p.programId === f.programId).sort((a,b) => (b.fav?1:0)-(a.fav?1:0));
+      h += '<span class="fsep"></span>' + prs.map(p => `<button class="fchip sub${f.projectId === p.id ? ' on' : ''}" data-f="prj" data-id="${p.id}">${p.fav ? '★ ' : ''}${esc(p.name)}</button>`).join('');
+    }
   }
   document.getElementById('filters').innerHTML = h;
 }
@@ -517,9 +507,8 @@ function renderFoot(){
   else if(f.state === 'err') st = `<span style="color:var(--red)">No se pudo guardar en ${esc(f.name)}${dirty ? ' · cambios sin guardar' : ''}</span> · <button class="linkbtn" data-act="perm">reintentar</button>`;
   else st = 'Solo navegador · vincular archivo en Ajustes';
   document.getElementById('foot').innerHTML =
-    `<span><span class="lg"><i style="background:var(--red)"></i>urgente</span><span class="lg"><i style="background:var(--claim-bg);border:1px solid var(--wait-line)"></i>de otra persona / reclamo</span>${S.programs.map(g => `<span class="lg"><i style="background:${g.color}"></i>${esc(g.name)}</span>`).join('')}<span class="lg"><i style="background:#c58aa0"></i>sin proyecto</span><span class="lg">· etiqueta de color = proyecto</span></span><span class="sp"></span><span>${st}</span>`;
+    `<span>${S.programs.map(g => `<span class="lg"><i style="background:${g.color}"></i>${esc(g.name)}</span>`).join('')}<span class="lg"><i style="background:#c58aa0"></i>sin proyecto</span><span class="lg"><i style="background:var(--claim-bg);border:1px solid var(--wait-line);border-radius:2px"></i>de otra persona</span><span class="lg"><i style="background:var(--red)"></i>urgente</span><span class="lg">★ en foco</span></span><span class="sp"></span><span>${st}</span>`;
 }
-const MAX_TEMAS = 4, MAX_TAREAS_TEMA = 5;
 function dateBtn(t, td){
   if(isClaim(t,td)) return `<button class="dtxt claim" data-act="date">reclamar · desde ${+remindOf(t).slice(8)}/${+remindOf(t).slice(5,7)}</button>`;
   if(isWait(t)) return `<button class="dtxt" data-act="date">reclamar ${fmtDate(remindOf(t))}</button>`;
@@ -546,47 +535,107 @@ function renderDia(td){
   b.className = '';
   b.innerHTML = todayHtml + `<div class="rest">${rest}</div>`;
 }
-function renderProyectos(td){
-  const open = S.tasks.filter(t => !t.done), vis = open.filter(t => passes(t, true));
-  const key = t => isWait(t) ? remindOf(t) : t.date;
-  const byDate = (a,b) => key(a).localeCompare(key(b)) || (a.order||0)-(b.order||0);
-  const tr = t => `<div class="tr${t.type === 'urgente' ? ' urgente' : ''}${other(t,td) ? ' other' : ''}${UI.sel === t.id ? ' sel' : ''}" draggable="true" data-id="${t.id}">
-    <button class="ck" data-act="done" aria-label="Marcar como hecha"></button><span class="tt title" data-act="edit" title="${esc(t.title)}">${esc(t.title)}</span>${personChip(t)}${dateBtn(t,td)}</div>`;
-  const temaHtml = m => {
-    const all = open.filter(t => t.temaId === m.id).length, rows = vis.filter(t => t.temaId === m.id).sort(byDate);
-    const note = !all ? 'sin tarea siguiente' : `${rows.length}${all > MAX_TAREAS_TEMA ? ' · muchas' : ''}`;
-    return `<div class="tm" data-tema="${m.id}"><div class="tm-h"><span class="tm-n" title="${esc(m.note || m.name)}">${esc(m.name)}</span><span class="n${(!all || all > MAX_TAREAS_TEMA) ? ' warn' : ''}">${note}</span><button class="add" data-pact="addtask" data-tema="${m.id}">+ tarea</button></div>${rows.map(tr).join('')}</div>`;
+
+/* ======================= RADAR ======================= */
+const rItem = id => S.radar.find(r => r.id === id);
+const rKey = r => r.projectId ? 'pj:' + r.projectId : r.programId ? 'pg:' + r.programId : 'g';
+function rApply(r, bkey){
+  if(bkey.startsWith('pj:')){ r.projectId = bkey.slice(3); r.programId = (project(r.projectId) || {}).programId || null; }
+  else if(bkey.startsWith('pg:')){ r.projectId = null; r.programId = bkey.slice(3); }
+  else { r.projectId = null; r.programId = null; }
+}
+const rGroup = r => r.parked ? 2 : r.foco ? 0 : 1;
+const rSort = arr => [...arr].sort((a,b) => rGroup(a) - rGroup(b) || (a.order||0) - (b.order||0));
+function rRenumAll(list){
+  const g = {};
+  list.filter(r => !r.doneAt).forEach(r => { (g[rKey(r)] = g[rKey(r)] || []).push(r); });
+  Object.values(g).forEach(arr => arr.sort((a,b) => (a.order||0) - (b.order||0) || a.createdAt.localeCompare(b.createdAt)).forEach((r,i) => { r.order = i; }));
+}
+const rOpenOf = bkey => S.radar.filter(r => !r.doneAt && rKey(r) === bkey);
+function rBlockName(bkey){
+  if(bkey.startsWith('pj:')) return (project(bkey.slice(3)) || {}).name || '';
+  if(bkey.startsWith('pg:')) return ((program(bkey.slice(3)) || {}).name || '') + ' · transversal';
+  return 'Global';
+}
+function rAdd(bkey, text){
+  text = text.trim(); if(!text) return false;
+  const r = {id:uid('r'), programId:null, projectId:null, text, note:'', order:0, foco:false, parked:false, createdAt:today(), doneAt:null};
+  rApply(r, bkey);
+  r.order = rOpenOf(bkey).reduce((m,x) => Math.max(m, x.order || 0), -1) + 1;
+  S.radar.push(r); UI.focusAdd = bkey; commit(); return true;
+}
+function rFoco(id){ const r = rItem(id); if(!r) return; r.foco = !r.foco; if(r.foco) r.parked = false; commit(); }
+function rPark(id){ const r = rItem(id); if(!r) return; r.parked = !r.parked; if(r.parked) r.foco = false; commit(); }
+function rResolve(id){
+  const r = rItem(id); if(!r) return;
+  const i = UI.rorder.indexOf(id), nb = UI.rorder[i+1] || UI.rorder[i-1] || null;
+  r.doneAt = today(); UI.rsel = nb === id ? null : nb; commit();
+}
+function rReopen(id){
+  const r = rItem(id); if(!r) return;
+  r.doneAt = null; r.order = rOpenOf(rKey(r)).reduce((m,x) => x === r ? m : Math.max(m, x.order || 0), -1) + 1; commit();
+}
+function rMove(id, dir){
+  const r = rItem(id); if(!r || r.doneAt) return false;
+  const bkey = rKey(r); rRenumAll(S.radar);
+  const disp = rSort(rOpenOf(bkey)), i = disp.indexOf(r), n = disp[i + dir];
+  if(!n || rGroup(n) !== rGroup(r)) return true;
+  const o = r.order; r.order = n.order; n.order = o; commit(); return true;
+}
+function rDrop(id, bkey, beforeId){
+  const r = rItem(id); if(!r) return;
+  rApply(r, bkey);
+  const list = rOpenOf(bkey).filter(x => x !== r).sort((a,b) => (a.order||0) - (b.order||0));
+  let at = beforeId ? list.findIndex(x => x.id === beforeId) : -1;
+  if(at < 0) at = list.length;
+  list.splice(at, 0, r); list.forEach((x,i) => { x.order = i; });
+  UI.rsel = id; commit();
+}
+function rToTask(id){
+  const r = rItem(id); if(!r) return;
+  const txt = r.projectId ? '#' + ((project(r.projectId) || {}).name || '').replace(/\s+/g,'_') + ' ' : '';
+  setView('dia');
+  quick.value = txt; quick.focus(); quick.setSelectionRange(txt.length, txt.length);
+}
+function renderRadar(td){
+  const open = S.radar.filter(r => !r.doneAt), rf = UI.rf;
+  const nFoco = open.filter(r => r.foco && !r.parked).length, nPark = open.filter(r => r.parked).length;
+  const nWeek = S.radar.filter(r => r.doneAt && diffDays(td, r.doneAt) <= 7).length;
+  const q = UI.filter.q, vis = r => !q || norm(r.text + ' ' + (r.note || '')).includes(norm(q));
+  const item = r => `<div class="ai${r.foco ? ' foco' : ''}${r.parked ? ' park' : ''}${UI.rsel === r.id ? ' sel' : ''}" data-aid="${r.id}" draggable="true"${rf === 'foco' && !r.foco ? ' style="opacity:.3"' : ''}>
+      <span class="h" title="Arrastrar para ordenar">⋮⋮</span>
+      <button class="st${r.foco ? ' on' : ''}" data-ra="foco" aria-label="Foco" title="Foco (F)">${r.foco ? '★' : '☆'}</button>
+      <span class="tx" data-ra="edit" title="Clic para editar">${esc(r.text)}${r.note ? `<span class="nt">${esc(r.note)}</span>` : ''}</span>
+      <span class="since" title="En el radar desde">${dm(r.createdAt)}</span>
+      <span class="acts"><button data-ra="task" title="Crear una tarea con este proyecto">→ tarea</button><button data-ra="park" title="Aparcar (A)">${r.parked ? 'reactivar' : 'aparcar'}</button><button data-ra="done" title="Resuelto (X)">✓ resuelto</button></span></div>`;
+  const prow = (bkey, title, sub, color, transv) => {
+    const all = S.radar.filter(r => rKey(r) === bkey), o = rSort(all.filter(r => !r.doneAt)), d = all.filter(r => r.doneAt).sort((a,b) => b.doneAt.localeCompare(a.doneAt));
+    const nf = o.filter(r => r.foco && !r.parked).length, empty = !o.length;
+    return `<div class="pr${transv ? ' transv' : ''}${empty ? ' vacio' : ''}" data-rdrop="${bkey}" style="--pc:${color}"><div class="pn"><b>${esc(title)}</b>${sub ? `<span class="sub">${sub}</span>` : ''}${o.length ? `<span class="n">${o.length} asunto${o.length === 1 ? '' : 's'}${nf ? ' · ' + nf + ' ★' : ''}</span>` : ''}</div>
+      <div class="it">${empty ? '<span class="none">Nada en el radar</span>' : o.filter(vis).map(item).join('')}
+        <div class="add"><input class="aadd" data-bkey="${bkey}" placeholder="+ asunto" aria-label="Añadir asunto al radar"></div>
+        ${d.length ? `<div class="rdone${UI.rOpen.has(bkey) ? ' open' : ''}"><span class="tg" data-ra="toggle" data-bkey="${bkey}">${UI.rOpen.has(bkey) ? '▾' : '▸'} resueltos (${d.length})</span><div class="lst">${d.map(r => `<div class="ri" data-ra="reopen" data-rid="${r.id}" title="Clic para reabrir"><span>${esc(r.text)}</span><em>${dm(r.doneAt)}</em></div>`).join('')}</div></div>` : ''}
+      </div></div>`;
   };
-  const block = (bkey, title, sub, color, transv, ms, loose) => {
-    const n = ms.reduce((a,m) => a + vis.filter(t => t.temaId === m.id).length, 0) + loose.length;
-    const many = ms.length > MAX_TEMAS;
-    const foot = UI.addTema === bkey ? `<input class="add-tema" placeholder="Nombre del tema" aria-label="Nuevo tema">` : `<button class="add" data-pact="addtema" data-block="${bkey}">+ tema</button>`;
-    return `<div class="pc${transv ? ' transv' : ''}" data-drop="blk" data-bkey="${bkey}" style="--pc:${color}"><div class="pc-h"><b>${esc(title)}${sub ? ` <span class="sub">${sub}</span>` : ''}</b><span class="n${many ? ' warn' : ''}">${many ? 'demasiados temas · ' : ''}${n} tarea${n === 1 ? '' : 's'}</span></div>
-      <div class="pc-b">${ms.map(temaHtml).join('')}${loose.length ? `<div class="tm loose"><div class="tm-h"><span class="tm-n">Sueltas</span><span class="n">${loose.length}</span></div>${loose.sort(byDate).map(tr).join('')}</div>` : ''}${(!ms.length && !loose.length) ? '<div class="none">Nada abierto</div>' : ''}</div>
-      <div class="pc-f">${foot}</div></div>`;
-  };
-  const f = UI.filter;
-  let html = '';
-  if(!f.programId) html += `<div class="band"><div class="band-h"><i style="background:var(--line2)"></i>Global</div><div class="board">${block('g','Global','','#9a9a95',true,S.temas.filter(m => !m.programId && !m.projectId),vis.filter(t => !t.projectId && !t.temaId && !t.programId))}</div></div>`;
-  S.programs.filter(g => !f.programId || f.programId === g.id).forEach(g => {
-    let blocks = block('pg:' + g.id, g.name, 'transversal', g.color, true, S.temas.filter(m => !m.projectId && m.programId === g.id), vis.filter(t => !t.projectId && !t.temaId && t.programId === g.id));
-    S.projects.filter(p => p.programId === g.id).forEach(p => {
-      blocks += block('pj:' + p.id, p.name, '', g.color, false, S.temas.filter(m => m.projectId === p.id), vis.filter(t => t.projectId === p.id && !t.temaId));
-    });
-    html += `<div class="band"><div class="band-h"><i style="background:${g.color}"></i>${esc(g.name)}</div><div class="board">${blocks}</div></div>`;
+  let html = `<div class="sum"><span><b>${open.length}</b> asunto${open.length === 1 ? '' : 's'} en el radar</span><span><b>${nFoco}</b> en foco ★</span><span><b>${nPark}</b> aparcado${nPark === 1 ? '' : 's'}</span><span><b>${nWeek}</b> resuelto${nWeek === 1 ? '' : 's'} esta semana</span></div><div class="radar">`;
+  if(rf === 'all' || rf === 'foco') html += `<div class="band"><i style="background:var(--line2)"></i>Global</div>` + prow('g', 'Global', 'sin programa', 'var(--line2)', true);
+  S.programs.forEach(g => {
+    if(rf !== 'all' && rf !== 'foco' && rf !== g.id) return;
+    const n = open.filter(r => r.programId === g.id).length;
+    html += `<div class="band"><i style="background:${g.color}"></i>${esc(g.name)} <span class="c">· ${n} asunto${n === 1 ? '' : 's'}</span></div>` + prow('pg:' + g.id, g.name, 'transversal', g.color, true);
+    S.projects.filter(p => p.programId === g.id).forEach(p => { html += prow('pj:' + p.id, p.name, '', g.color, false); });
   });
   const b = document.getElementById('board');
-  b.className = 'proy';
-  b.innerHTML = html;
-  UI.order = [...b.querySelectorAll('.tr[data-id]')].map(el => el.dataset.id);
-  UI.todayLanes = {mine:[], others:[]};
-  if(UI.sel && !UI.order.includes(UI.sel)){ UI.sel = null; b.querySelectorAll('.tr.sel').forEach(el => el.classList.remove('sel')); }
-  const it = b.querySelector('.add-tema'); if(it) it.focus();
+  b.className = 'rdr';
+  b.innerHTML = html + '</div>';
+  UI.rorder = [...b.querySelectorAll('.ai[data-aid]')].map(el => el.dataset.aid);
+  if(UI.rsel && !UI.rorder.includes(UI.rsel)){ UI.rsel = null; b.querySelectorAll('.ai.sel').forEach(el => el.classList.remove('sel')); }
+  if(UI.focusAdd){ const inp = b.querySelector(`.aadd[data-bkey="${UI.focusAdd}"]`); UI.focusAdd = null; if(inp) inp.focus(); }
 }
 function setView(v){
-  v = v === 'proyectos' ? 'proyectos' : 'dia';
+  v = v === 'radar' ? 'radar' : 'dia';
   if(UI.view === v) return;
-  UI.view = v; UI.addTema = null;
+  UI.view = v;
   try{ localStorage.setItem('tareas.view', v); }catch(e){}
   render();
 }
@@ -595,13 +644,15 @@ function render(){
   const td = today();
   document.getElementById('dnow').textContent = fmtLong();
   document.querySelectorAll('#tabs button').forEach(b => b.classList.toggle('on', b.dataset.v === UI.view));
-  UI.view === 'proyectos' ? renderProyectos(td) : renderDia(td);
+  document.getElementById('quick').hidden = UI.view === 'radar';
+  UI.view === 'radar' ? renderRadar(td) : renderDia(td);
   renderFilters();
   renderFoot();
   document.getElementById('btnDone').textContent = `Hechas (${S.tasks.filter(t => t.done).length})`;
   document.documentElement.dataset.theme = S.settings.theme === 'dark' ? 'dark' : 'light';
   if(UI.panel){ const t = taskById(UI.panel); if(!t || t.done) closePanel(); }
-  const el = UI.sel && document.querySelector(`[data-id="${UI.sel}"]`);
+  if(UI.rpanel && !rItem(UI.rpanel)) closePanel();
+  const el = document.querySelector(UI.view === 'radar' ? (UI.rsel ? `[data-aid="${UI.rsel}"]` : 'x-none') : (UI.sel ? `[data-id="${UI.sel}"]` : 'x-none'));
   if(el) el.scrollIntoView({block:'nearest'});
 }
 
@@ -668,7 +719,7 @@ async function linkFile(mode){
 }
 async function unlinkFile(){ fh = null; setDirty(false); try{ await idbDel('handle'); }catch(e){} UI.file = {state:'none',name:'',time:''}; renderFoot(); openSettings(); }
 async function init(){
-  try{ UI.view = localStorage.getItem('tareas.view') === 'proyectos' ? 'proyectos' : 'dia'; }catch(e){}
+  try{ UI.view = localStorage.getItem('tareas.view') === 'radar' ? 'radar' : 'dia'; }catch(e){}
   let d = null;
   try{ d = normalize(JSON.parse(localStorage.getItem(KEY))); }catch(e){}
   S = d || defaults();
@@ -763,14 +814,6 @@ function moveInToday(id, how){
   reorderToday(id, before);
   commit(); return true;
 }
-function moveToBlock(id, bkey, temaId){
-  const t = taskById(id); if(!t) return;
-  if(temaId){ const m = tema(temaId); if(!m) return; t.temaId = m.id; if(m.projectId) t.projectId = m.projectId; fixProg(t); }
-  else if(bkey.startsWith('pj:')){ t.projectId = bkey.slice(3); t.temaId = null; t.programId = null; }
-  else if(bkey.startsWith('pg:')){ t.projectId = null; t.temaId = null; t.programId = bkey.slice(3); }
-  else { t.projectId = null; t.temaId = null; t.programId = null; }
-  UI.sel = id; commit();
-}
 function dropTo(id, col, beforeId){
   moveTo(id, col);
   if(col === 'today') reorderToday(id, beforeId);
@@ -791,14 +834,14 @@ function action(act, id){
 function createFromLine(text, toToday){
   const p = parseLine(text);
   if(toToday) p.date = today();
-  const r = resolve(p, null);
+  const r = resolve(p);
   if(r.bad.length){ toast('No existe: ' + r.bad.join(' ') + ' · elígelo en el desplegable'); return false; }
   if(!p.title){ toast('Falta el título'); return false; }
-  const t = Object.assign({id:uid('t'),title:p.title,personId:'me',projectId:null,programId:null,temaId:null,type:'hacer',date:defaultDate(),waiting:false,remindOn:null,
+  const t = Object.assign({id:uid('t'),title:p.title,personId:'me',projectId:null,type:'hacer',date:defaultDate(),waiting:false,remindOn:null,
     note:'',order:maxOrder()+1,done:false,doneAt:null,createdAt:new Date().toISOString()}, r.patch);
   if(t.type === 'urgente' && !p.date) t.date = today();
   else if(t.personId !== 'me'){ t.waiting = true; t.remindOn = p.date || waitDate(); }
-  fixProg(t); S.tasks.push(t); commit();
+  S.tasks.push(t); commit();
   toast(`Creada · ${COLNAME[colOf(t,today())]}`);
   return true;
 }
@@ -825,41 +868,13 @@ function popPerson(anchor, id){
   const html = S.people.map(p => `<button class="it" data-v="${p.id}">${esc(p.name)}</button>`).join('');
   openPop(anchor, html, v => { setPerson(taskById(id), v); commit(); });
 }
-function temaOptionsHtml(sel, asPop){
-  const o = m => asPop ? `<button class="it" data-v="${m.id}">${esc(m.name)}</button>` : `<option value="${m.id}"${m.id === sel ? ' selected' : ''}>${esc(m.name)}</option>`;
-  const grp = (label, ms) => ms.length ? (asPop ? `<div class="gh">${esc(label)}</div>` + ms.map(o).join('') : `<optgroup label="${esc(label)}">${ms.map(o).join('')}</optgroup>`) : '';
-  let h = grp('Global', S.temas.filter(m => !m.programId && !m.projectId));
-  S.programs.forEach(g => {
-    h += grp(g.name + ' · transversal', S.temas.filter(m => !m.projectId && m.programId === g.id));
-    S.projects.filter(p => p.programId === g.id).forEach(p => { h += grp(p.name, S.temas.filter(m => m.projectId === p.id)); });
-  });
-  return h;
-}
-function popTema(anchor, id){
-  const t = taskById(id);
-  const html = `<button class="it" data-v="">— sin tema —</button>` + temaOptionsHtml(t.temaId, true) + `<button class="it" data-v="__new" style="color:var(--accent)">+ Crear tema…</button>`;
-  openPop(anchor, html, v => {
-    if(v !== '__new'){ t.temaId = v || null; commit(); return; }
-    let form = `<div class="gh">Nuevo tema</div><input class="pop-in" placeholder="Nombre del tema" aria-label="Nombre del tema"><div class="gh">Cuelga de</div>`;
-    if(t.projectId) form += `<button class="it" data-v="pj:${t.projectId}">Proyecto: ${esc((project(t.projectId) || {}).name || '')}</button>`;
-    S.programs.forEach(g => { form += `<button class="it" data-v="pg:${g.id}">Programa: ${esc(g.name)}</button>`; });
-    form += `<button class="it" data-v="g">Global (sin programa)</button>`;
-    openPop(anchor, form, w => {
-      const name = ((popEl.querySelector('.pop-in') || {}).value || '').trim();
-      if(!name){ toast('Escribe el nombre del tema'); return; }
-      const m = w === 'g' ? addTema(name, null, null) : w.startsWith('pj:') ? addTema(name, w.slice(3), null) : addTema(name, null, w.slice(3));
-      t.temaId = m.id; commit();
-    });
-    const inp = popEl.querySelector('.pop-in'); if(inp) inp.focus();
-  });
-}
 function popProject(anchor, id){
   let html = `<button class="it" data-v="">— sin proyecto —</button>`;
   S.programs.forEach(pg => {
     const prs = S.projects.filter(p => p.programId === pg.id);
     if(prs.length) html += `<div class="gh">${esc(pg.name)}</div>` + prs.map(p => `<button class="it" data-v="${p.id}">${p.fav ? '★ ' : ''}${esc(p.name)}</button>`).join('');
   });
-  openPop(anchor, html, v => { const t = taskById(id); t.projectId = v || null; fixProg(t); commit(); });
+  openPop(anchor, html, v => { const t = taskById(id); t.projectId = v || null; commit(); });
 }
 function popDate(anchor, id){
   const t = taskById(id), w = isWait(t), cur = w ? remindOf(t) : t.date;
@@ -896,11 +911,11 @@ function finishEdit(apply){
   if(!ED || ED.done) return;
   const {id, inp} = ED;
   if(apply){
-    const t = taskById(id), p = parseLine(inp.value), r = resolve(p, t);
+    const t = taskById(id), p = parseLine(inp.value), r = resolve(p);
     if(r.bad.length){ toast('No existe: ' + r.bad.join(' ')); return; }
     if(!p.title){ toast('Falta el título'); return; }
     const pid = r.patch.personId; delete r.patch.personId;
-    t.title = p.title; Object.assign(t, r.patch); fixProg(t);
+    t.title = p.title; Object.assign(t, r.patch);
     if(pid && pid !== t.personId) setPerson(t, pid);
     if(p.date && t.personId !== 'me' && t.type !== 'urgente'){ t.waiting = true; t.remindOn = p.date; }
     fixOwner(t);
@@ -912,23 +927,16 @@ function finishEdit(apply){
 /* ======================= AUTOCOMPLETE @ # ======================= */
 const acEl = document.getElementById('ac');
 const AC = {inp:null,kind:'',q:'',start:0,end:0,items:[],idx:0,stage:'',pendingName:''};
-const AC_KIND = {'@':'person','#':'project','^':'tema'}, AC_PREFIX = {person:'@',project:'#',tema:'^'}, AC_LABEL = {person:'persona',project:'proyecto',tema:'tema'};
-function acCtxProject(inp){
-  let pj = (ED && ED.inp === inp) ? ((taskById(ED.id) || {}).projectId || null) : null;
-  for(const w of inp.value.split(/\s+/)) if(w.length > 1 && w[0] === '#'){ const x = findByName(S.projects, w.slice(1)); if(x) pj = x.id; }
-  return pj;
-}
+const AC_KIND = {'@':'person','#':'project'}, AC_PREFIX = {person:'@',project:'#'}, AC_LABEL = {person:'persona',project:'proyecto'};
 const acClosed = () => acEl.style.display === 'none';
 function acClose(){ acEl.style.display = 'none'; AC.items = []; }
 function acDraw(){
   const r = AC.inp.getBoundingClientRect();
-  let h = AC.stage === 'program' ? `<div class="gh">Programa de «${esc(AC.pendingName)}»</div>` : AC.stage === 'parent' ? `<div class="gh">Tema «${esc(AC.pendingName)}» cuelga de</div>` : '';
+  let h = AC.stage === 'program' ? `<div class="gh">Programa de «${esc(AC.pendingName)}»</div>` : '';
   h += AC.items.map((it,i) => {
     let label, cls = '';
     if(it.t === 'new'){ label = `Crear ${AC_LABEL[AC.kind]}: ${esc(AC.q.replace(/_/g,' '))}`; cls = ' new'; }
     else if(it.t === 'prg') label = esc(it.x.name);
-    else if(it.t === 'par') label = esc(it.label);
-    else if(AC.kind === 'tema') label = `${esc(it.x.name)} <span class="count">${esc(temaWhere(it.x))}</span>`;
     else if(AC.kind === 'project'){ const pg = S.programs.find(g => g.id === it.x.programId); label = `${esc(it.x.name)} <span class="count">${esc(pg ? pg.name : '')}</span>`; }
     else label = esc(it.x.name);
     return `<button class="${i === AC.idx ? 'on' : ''}${cls}" data-i="${i}" tabindex="-1">${label}</button>`;
@@ -938,14 +946,12 @@ function acDraw(){
   acEl.style.top = (r.bottom + 4) + 'px';
 }
 function acUpdate(inp){
-  const c = inp.selectionStart, m = /(^|\s)([@#^])([^\s]*)$/.exec(inp.value.slice(0,c));
+  const c = inp.selectionStart, m = /(^|\s)([@#])([^\s]*)$/.exec(inp.value.slice(0,c));
   if(!m){ acClose(); return; }
   const kind = AC_KIND[m[2]], q = m[3], nq = norm(q.replace(/_/g,' '));
-  const list = kind === 'person' ? S.people : kind === 'project' ? S.projects : S.temas;
-  const ctx = kind === 'tema' ? acCtxProject(inp) : null, ctxPg = ctx && (project(ctx) || {}).programId;
-  const score = x => kind !== 'tema' ? 0 : (x.projectId && x.projectId === ctx) ? 0 : (ctxPg && !x.projectId && x.programId === ctxPg) ? 1 : !x.programId ? 2 : 3;
+  const list = kind === 'person' ? S.people : S.projects;
   const items = list.filter(x => norm(x.name).includes(nq))
-    .sort((a,b) => (score(a) - score(b)) || (norm(b.name).startsWith(nq) - norm(a.name).startsWith(nq))).map(x => ({t:'pick',x}));
+    .sort((a,b) => norm(b.name).startsWith(nq) - norm(a.name).startsWith(nq)).map(x => ({t:'pick',x}));
   if(q && !list.some(x => norm(x.name) === nq)) items.push({t:'new'});
   if(!items.length){ acClose(); return; }
   Object.assign(AC,{inp,kind,q,start:c-q.length-1,end:c,items,idx:0,stage:'list'});
@@ -959,18 +965,11 @@ function acInsert(name){
 function acPick(i){
   const it = AC.items[i]; if(!it) return;
   if(AC.stage === 'program'){ acInsert(addProject(AC.pendingName, it.x.id).name); return; }
-  if(AC.stage === 'parent'){ acInsert(addTema(AC.pendingName, it.pid, it.gid).name); return; }
   if(it.t === 'pick') return acInsert(it.x.name);
   const name = AC.q.replace(/_/g,' ');
   if(AC.kind === 'person') return acInsert(addPerson(name).name);
   AC.pendingName = name; AC.idx = 0;
-  if(AC.kind === 'project'){ AC.stage = 'program'; AC.items = S.programs.map(x => ({t:'prg',x})); acDraw(); return; }
-  AC.stage = 'parent';
-  const ctx = acCtxProject(AC.inp), its = [];
-  if(ctx){ const pj = project(ctx); its.push({t:'par', label:'Proyecto: ' + pj.name, pid:ctx, gid:pj.programId}); }
-  S.programs.forEach(g => its.push({t:'par', label:'Programa: ' + g.name, pid:null, gid:g.id}));
-  its.push({t:'par', label:'Global (sin programa)', pid:null, gid:null});
-  AC.items = its; acDraw();
+  AC.stage = 'program'; AC.items = S.programs.map(x => ({t:'prg',x})); acDraw();
 }
 function attachAC(inp){
   inp.addEventListener('input', () => acUpdate(inp));
@@ -994,10 +993,10 @@ acEl.addEventListener('click', e => { const b = e.target.closest('button[data-i]
 
 /* ======================= PANEL LATERAL ======================= */
 const panelEl = document.getElementById('panel');
-function closePanel(){ panelEl.style.display = 'none'; panelEl.innerHTML = ''; UI.panel = null; }
+function closePanel(){ panelEl.style.display = 'none'; panelEl.innerHTML = ''; UI.panel = null; UI.rpanel = null; }
 function openPanel(id){
   const t = taskById(id); if(!t) return;
-  UI.panel = id;
+  UI.panel = id; UI.rpanel = null;
   const opts = (arr, sel) => arr.map(([v,l]) => `<option value="${v}"${v === sel ? ' selected' : ''}>${esc(l)}</option>`).join('');
   let prj = `<option value="">— sin proyecto —</option>`;
   S.programs.forEach(pg => {
@@ -1008,7 +1007,6 @@ function openPanel(id){
     <label>Título<input type="text" data-f="title" value="${esc(t.title)}"></label>
     <label>Persona<select data-f="personId">${opts(S.people.map(p => [p.id,p.name]), t.personId)}</select></label>
     <label>Proyecto<select data-f="projectId">${prj}</select></label>
-    <label>Tema<select data-f="temaId"><option value="">— sin tema —</option>${temaOptionsHtml(t.temaId, false)}</select></label>
     <label>Tipo<select data-f="type">${opts([['hacer','Normal'],['urgente','Urgente']], t.type)}</select></label>
     <label>Fecha<input type="date" data-f="date" value="${t.date}"></label>
     <label class="ck"><input type="checkbox" data-f="waiting"${isWait(t) ? ' checked' : ''}${t.personId !== 'me' && t.type !== 'urgente' ? ' disabled title="Las tareas de otros siempre esperan"' : ''}> Esperando</label>
@@ -1017,16 +1015,42 @@ function openPanel(id){
     <div class="frow"><button class="btn" data-p="done">✓ Hecha</button><span class="sp"></span><button class="btn danger" data-p="del">Borrar</button></div>`;
   panelEl.style.display = 'flex';
 }
+function openRPanel(id){
+  const r = rItem(id); if(!r) return;
+  UI.rpanel = id; UI.panel = null;
+  const cur = rKey(r), o = (v, l) => `<option value="${v}"${v === cur ? ' selected' : ''}>${esc(l)}</option>`;
+  let opts = o('g', 'Global (sin programa)');
+  S.programs.forEach(g => {
+    opts += o('pg:' + g.id, g.name + ' · transversal');
+    S.projects.filter(p => p.programId === g.id).forEach(p => { opts += o('pj:' + p.id, g.name + ' · ' + p.name); });
+  });
+  panelEl.innerHTML = `<div class="frow"><b style="flex:1;font-size:16px">Asunto</b><button class="btn" data-p="close" aria-label="Cerrar">✕</button></div>
+    <label>Texto<input type="text" data-rf="text" value="${esc(r.text)}"></label>
+    <label>Nota<textarea data-rf="note">${esc(r.note)}</textarea></label>
+    <label>Cuelga de<select data-rf="bkey">${opts}</select></label>
+    <div class="frow"><span class="sp"></span><button class="btn danger" data-p="rdel">Borrar</button></div>`;
+  panelEl.style.display = 'flex';
+}
 panelEl.addEventListener('input', e => {
+  if(UI.rpanel){
+    const r = rItem(UI.rpanel), f = e.target.dataset.rf; if(!r) return;
+    if(f === 'text'){ if(e.target.value.trim()) r.text = e.target.value; } else if(f === 'note') r.note = e.target.value;
+    save(); return;
+  }
   const f = e.target.dataset.f, t = taskById(UI.panel); if(!t) return;
   if(f === 'title'){ if(e.target.value.trim()) t.title = e.target.value; save(); }
   else if(f === 'note'){ t.note = e.target.value; save(); }
 });
 panelEl.addEventListener('change', e => {
+  if(UI.rpanel){
+    const r = rItem(UI.rpanel), f = e.target.dataset.rf; if(!r) return;
+    if(f === 'text' && !e.target.value.trim()){ e.target.value = r.text; return; }
+    if(f === 'bkey'){ rApply(r, e.target.value); r.order = rOpenOf(e.target.value).reduce((m,x) => x === r ? m : Math.max(m, x.order || 0), -1) + 1; }
+    commit(); return;
+  }
   const f = e.target.dataset.f, t = taskById(UI.panel); if(!f || !t) return;
   const v = e.target.type === 'checkbox' ? e.target.checked : e.target.value;
-  if(f === 'projectId'){ t.projectId = v || null; fixProg(t); }
-  else if(f === 'temaId') t.temaId = v || null;
+  if(f === 'projectId') t.projectId = v || null;
   else if(f === 'waiting'){ t.waiting = v; t.remindOn = v ? waitDate() : null; }
   else if(f === 'personId') setPerson(t, v);
   else if(f === 'date'){ if(!v) return; t.date = v; if(isWait(t)) t.remindOn = v; }
@@ -1038,6 +1062,12 @@ panelEl.addEventListener('change', e => {
 });
 panelEl.addEventListener('click', e => {
   const b = e.target.closest('[data-p]'); if(!b) return;
+  if(UI.rpanel){
+    const id = UI.rpanel;
+    if(b.dataset.p === 'close') closePanel();
+    else if(b.dataset.p === 'rdel' && confirm('¿Borrar este asunto?')){ closePanel(); S.radar = S.radar.filter(r => r.id !== id); UI.rsel = null; commit(); }
+    return;
+  }
   const id = UI.panel;
   if(b.dataset.p === 'close') closePanel();
   else if(b.dataset.p === 'done'){ closePanel(); doDone(id); }
@@ -1061,7 +1091,7 @@ function openDone(){
 }
 function openKeys(){
   UI.modal = 'keys';
-  const rows = [['N','Enfocar línea rápida'],['/','Buscar'],['?','Esta tabla'],['1 / 2','Vista Día / Proyectos'],['↑ ↓','Seleccionar fila'],['H','Mover a Hoy'],['M','Mañana'],['S','Esta semana (viernes)'],['P','Próxima semana (lunes)'],['L','Más adelante (+30 días)'],['E','Esperando'],['X / Supr','Hecha'],['U','Marcar / quitar urgente'],['Alt + ↑ ↓','Subir / bajar la tarea dentro de Hoy'],['A','Subir la tarea al principio de Hoy'],['Intro','Abrir panel de edición'],['Esc','Deseleccionar / cerrar']];
+  const rows = [['N','Enfocar línea rápida'],['/','Buscar'],['?','Esta tabla'],['1 / 2','Vista Día / Radar'],['↑ ↓','Seleccionar fila'],['H','Mover a Hoy'],['M','Mañana'],['S','Esta semana (viernes)'],['P','Próxima semana (lunes)'],['L','Más adelante (+30 días)'],['E','Esperando'],['X / Supr','Hecha'],['U','Marcar / quitar urgente'],['Alt + ↑ ↓','Subir / bajar la tarea dentro de Hoy'],['A','Subir la tarea al principio de Hoy'],['Intro','Abrir panel de edición'],['Esc','Deseleccionar / cerrar'],['Radar: F','Foco ★'],['Radar: A','Aparcar / reactivar'],['Radar: X','Resuelto'],['Radar: Alt + ↑ ↓','Reordenar en su bloque'],['Radar: Intro','Editar el asunto']];
   showModal(`<h2>Atajos${closeBtn}</h2><table class="keys">${rows.map(r => `<tr><td><kbd>${r[0]}</kbd></td><td>${r[1]}</td></tr>`).join('')}</table>`);
 }
 function openSettings(){
@@ -1089,21 +1119,7 @@ function openSettings(){
         <button class="btn" data-m="jdel" data-id="${p.id}"${S.tasks.some(t => t.projectId === p.id) ? ' disabled' : ''}>Borrar</button></div>`).join('')}
       <div class="frow sub"><input type="text" data-ja="${pg.id}" placeholder="Nuevo proyecto en ${esc(pg.name)}"><button class="btn" data-m="jadd" data-id="${pg.id}">Añadir</button></div></div>`;
   }).join('');
-  const parentOpts = m => {
-    const sel = m ? (m.projectId ? 'p:' + m.projectId : m.programId ? 'g:' + m.programId : '') : '';
-    let h = `<option value=""${sel === '' ? ' selected' : ''}>Global</option>`;
-    S.programs.forEach(g => { h += `<option value="g:${g.id}"${sel === 'g:' + g.id ? ' selected' : ''}>Programa: ${esc(g.name)}</option>`; });
-    S.projects.forEach(p => { h += `<option value="p:${p.id}"${sel === 'p:' + p.id ? ' selected' : ''}>Proyecto: ${esc(p.name)}</option>`; });
-    return h;
-  };
-  const temasHtml = S.temas.map(m => {
-    const c = S.tasks.filter(t => t.temaId === m.id).length;
-    return `<div class="frow"><input type="text" data-tn="${m.id}" value="${esc(m.name)}" aria-label="Nombre del tema">
-      <select data-tp="${m.id}" aria-label="Cuelga de">${parentOpts(m)}</select>
-      <input type="text" data-tnote="${m.id}" value="${esc(m.note)}" placeholder="Nota" aria-label="Nota del tema">
-      <span class="count">${c} tareas</span><button class="btn" data-m="tdel" data-id="${m.id}">Borrar</button></div>`;
-  }).join('') || '<div class="empty">Ningún tema todavía.</div>';
-  const old = S.tasks.filter(t => t.done && t.doneAt && diffDays(today(), iso(new Date(t.doneAt))) > 90).length;
+  const old = S.tasks.filter(t => t.done && t.doneAt && diffDays(today(), iso(new Date(t.doneAt))) > 90).length + S.radar.filter(r => r.doneAt && diffDays(today(), r.doneAt) > 90).length;
   const fileSt = fh ? `Vinculado: <b>${esc(fh.name)}</b>` : (hasFS() ? 'Sin archivo vinculado' : 'Este navegador no permite vincular archivos; usa Exportar/Importar.');
   showModal(`<h2>Ajustes${closeBtn}</h2>
     <div class="frow"><label>Capturar en</label>${sel('captureIn',[['today','Hoy'],['tomorrow','Mañana'],['week','Viernes de esta semana'],['nextweek','Próxima semana']])}</div>
@@ -1114,15 +1130,13 @@ function openSettings(){
     <div class="frow"><input type="text" id="newPerson" placeholder="Nueva persona"><button class="btn" data-m="padd">Añadir</button></div>
     <h3>Programas y proyectos</h3>${prgs}
     <div class="frow"><input type="text" id="newProg" placeholder="Nuevo programa"><button class="btn" data-m="gadd">Añadir</button></div>
-    <h3>Temas</h3>${temasHtml}
-    <div class="frow"><input type="text" id="newTema" placeholder="Nuevo tema"><select id="newTemaP" aria-label="Cuelga de">${parentOpts(null)}</select><button class="btn" data-m="tadd">Añadir</button></div>
     <h3>Archivo vinculado</h3>
     <div class="frow"><span>${fileSt}</span></div>
     ${hasFS() ? `<div class="frow"><button class="btn" data-m="fopen">Abrir tareas.json existente…</button><button class="btn" data-m="fnew">Crear archivo nuevo…</button>${fh ? '<button class="btn" data-m="funlink">Desvincular</button>' : ''}</div>` : ''}
     <h3>Respaldo</h3>
     <div class="frow"><button class="btn" data-m="export">Exportar JSON</button><button class="btn" data-m="import">Importar JSON…</button><input type="file" id="impFile" accept=".json,application/json" hidden></div>
     <h3>Mantenimiento</h3>
-    <div class="frow"><button class="btn" data-m="purge"${old ? '' : ' disabled'}>Purgar hechas de más de 90 días (${old})</button></div>`);
+    <div class="frow"><button class="btn" data-m="purge"${old ? '' : ' disabled'}>Purgar hechas y asuntos resueltos de más de 90 días (${old})</button></div>`);
   modalEl.scrollTop = prev;
 }
 modalBg.addEventListener('mousedown', e => { if(e.target === modalBg) closeModal(); });
@@ -1138,16 +1152,7 @@ modalEl.addEventListener('change', e => {
   else if(d.gc){ S.programs.find(p => p.id === d.gc).color = v; commit(); openSettings(); }
   else if(d.gn){ if(nm){ S.programs.find(p => p.id === d.gn).name = nm; commit(); } }
   else if(d.jn){ if(nm){ S.projects.find(p => p.id === d.jn).name = nm; commit(); } }
-  else if(d.jp){ S.projects.find(p => p.id === d.jp).programId = v; S.temas.filter(m => m.projectId === d.jp).forEach(m => { m.programId = v; }); commit(); openSettings(); }
-  else if(d.tn){ if(nm){ tema(d.tn).name = nm; commit(); } }
-  else if(d.tnote){ tema(d.tnote).note = v.trim(); save(); }
-  else if(d.tp){
-    const m = tema(d.tp);
-    if(v.startsWith('p:')){ m.projectId = v.slice(2); m.programId = (project(m.projectId) || {}).programId || null; }
-    else if(v.startsWith('g:')){ m.projectId = null; m.programId = v.slice(2); }
-    else { m.projectId = null; m.programId = null; }
-    commit(); openSettings();
-  }
+  else if(d.jp){ S.projects.find(p => p.id === d.jp).programId = v; S.radar.filter(r => r.projectId === d.jp).forEach(r => { r.programId = v; }); rRenumAll(S.radar); commit(); openSettings(); }
   else if(e.target.id === 'impFile' && e.target.files[0]) importJson(e.target.files[0]);
 });
 modalEl.addEventListener('click', e => {
@@ -1159,20 +1164,9 @@ modalEl.addEventListener('click', e => {
     case 'pdel': S.people = S.people.filter(p => p.id !== id); commit(); openSettings(); break;
     case 'padd': { const n = val('#newPerson'); if(n){ addPerson(n); commit(); openSettings(); } break; }
     case 'gadd': { const n = val('#newProg'); if(n){ S.programs.push({id:uid('p'),name:n,color:PROG_COLORS.find(c => !S.programs.some(g => g.color === c)) || PROG_COLORS[S.programs.length % PROG_COLORS.length]}); commit(); openSettings(); } break; }
-    case 'gdel': S.temas.forEach(m => { if(m.programId === id) m.programId = null; }); S.tasks.forEach(t => { if(t.programId === id) t.programId = null; }); S.programs = S.programs.filter(p => p.id !== id); if(UI.filter.programId === id) UI.filter.programId = UI.filter.projectId = null; commit(); openSettings(); break;
+    case 'gdel': S.radar.forEach(r => { if(r.programId === id) r.programId = null; }); rRenumAll(S.radar); S.programs = S.programs.filter(p => p.id !== id); if(UI.filter.programId === id) UI.filter.programId = UI.filter.projectId = null; commit(); openSettings(); break;
     case 'jadd': { const n = val(`[data-ja="${id}"]`); if(n){ addProject(n,id); commit(); openSettings(); } break; }
-    case 'jdel': S.temas.forEach(m => { if(m.projectId === id) m.projectId = null; }); S.projects = S.projects.filter(p => p.id !== id); if(UI.filter.projectId === id) UI.filter.projectId = null; commit(); openSettings(); break;
-    case 'tadd': {
-      const n = val('#newTema'), v = (modalEl.querySelector('#newTemaP') || {}).value || '';
-      if(n){ v.startsWith('p:') ? addTema(n, v.slice(2), null) : addTema(n, null, v.startsWith('g:') ? v.slice(2) : null); commit(); openSettings(); }
-      break;
-    }
-    case 'tdel': {
-      const c = S.tasks.filter(t => t.temaId === id).length;
-      if(c && !confirm(`El tema tiene ${c} tarea${c === 1 ? '' : 's'}; quedarán sin tema. ¿Borrar?`)) break;
-      S.tasks.forEach(t => { if(t.temaId === id) t.temaId = null; });
-      S.temas = S.temas.filter(m => m.id !== id); commit(); openSettings(); break;
-    }
+    case 'jdel': S.radar.forEach(r => { if(r.projectId === id) r.projectId = null; }); rRenumAll(S.radar); S.projects = S.projects.filter(p => p.id !== id); if(UI.filter.projectId === id) UI.filter.projectId = null; commit(); openSettings(); break;
     case 'fav': { const p = S.projects.find(x => x.id === id); p.fav = !p.fav; commit(); openSettings(); break; }
     case 'fopen': linkFile('open'); break;
     case 'fnew': linkFile('new'); break;
@@ -1180,8 +1174,9 @@ modalEl.addEventListener('click', e => {
     case 'export': exportJson(); break;
     case 'import': document.getElementById('impFile').click(); break;
     case 'purge':
-      if(confirm('¿Borrar definitivamente las hechas de más de 90 días?')){
+      if(confirm('¿Borrar definitivamente las hechas y los asuntos resueltos de más de 90 días?')){
         S.tasks = S.tasks.filter(t => !(t.done && t.doneAt && diffDays(today(), iso(new Date(t.doneAt))) > 90));
+        S.radar = S.radar.filter(r => !(r.doneAt && diffDays(today(), r.doneAt) > 90));
         commit(); openSettings();
       }
       break;
@@ -1202,6 +1197,8 @@ search.addEventListener('keydown', e => { if(e.key === 'Escape'){ search.value =
 document.getElementById('btnDone').addEventListener('click', openDone);
 document.getElementById('btnSet').addEventListener('click', openSettings);
 document.getElementById('filters').addEventListener('click', e => {
+  const rb = e.target.closest('[data-rf]');
+  if(rb){ UI.rf = rb.dataset.rf; render(); return; }
   const b = e.target.closest('[data-f]'); if(!b) return;
   const f = UI.filter, k = b.dataset.f;
   if(k === 'all'){ f.kind = 'all'; f.programId = f.projectId = null; }
@@ -1220,33 +1217,56 @@ document.addEventListener('mousedown', e => {
 popEl.addEventListener('click', e => {
   const b = e.target.closest('button[data-v]'); if(b && popEl._pick){ const f = popEl._pick; closePop(); f(b.dataset.v); }
 });
-popEl.addEventListener('keydown', e => { if(e.key === 'Enter' && e.target.classList.contains('pop-in')){ e.preventDefault(); const b = popEl.querySelector('button.it'); if(b) b.click(); } });
 popEl.addEventListener('change', e => { if(e.target.type === 'date' && popEl._pick && e.target.value){ const f = popEl._pick; closePop(); f(e.target.value); } });
 
 document.getElementById('tabs').addEventListener('click', e => { const b = e.target.closest('[data-v]'); if(b) setView(b.dataset.v); });
-function createTema(name, bkey){
-  let pj = null, pg = null;
-  if(bkey.startsWith('pj:')) pj = bkey.slice(3); else if(bkey.startsWith('pg:')) pg = bkey.slice(3);
-  addTema(name, pj, pg); commit();
+
+/* radar: edición en sitio y clics */
+let RED = null;
+function startREdit(id){
+  if(RED) return;
+  const r = rItem(id), el = document.querySelector(`[data-aid="${id}"] .tx`); if(!r || !el) return;
+  const inp = document.createElement('input');
+  inp.type = 'text'; inp.className = 'inline-edit'; inp.value = r.text; inp.setAttribute('aria-label','Editar asunto');
+  el.replaceWith(inp);
+  RED = {id, inp, done:false};
+  inp.focus(); inp.setSelectionRange(inp.value.length, inp.value.length);
+  inp.addEventListener('keydown', e => {
+    if(e.key === 'Enter'){ e.preventDefault(); finishREdit(true); }
+    else if(e.key === 'Escape'){ e.preventDefault(); e.stopPropagation(); finishREdit(false); }
+  });
+  inp.addEventListener('blur', () => setTimeout(() => { if(RED && RED.inp === inp) finishREdit(true); }, 100));
+}
+function finishREdit(apply){
+  if(!RED || RED.done) return;
+  const {id, inp} = RED, v = inp.value.trim();
+  if(apply && v){ const r = rItem(id); if(r) r.text = v; }
+  RED.done = true; RED = null;
+  (apply && v) ? commit() : render();
+}
+function radarClick(e){
+  if(e.target.closest('.aadd') || (RED && RED.inp.contains(e.target))) return;
+  const a = e.target.closest('[data-ra]'), ai = e.target.closest('[data-aid]');
+  if(!a){ if(ai && UI.rsel !== ai.dataset.aid){ UI.rsel = ai.dataset.aid; render(); } return; }
+  const act = a.dataset.ra;
+  if(act === 'toggle'){ const k = a.dataset.bkey; UI.rOpen.has(k) ? UI.rOpen.delete(k) : UI.rOpen.add(k); render(); return; }
+  if(act === 'reopen'){ rReopen(a.dataset.rid); return; }
+  if(!ai) return;
+  const id = ai.dataset.aid;
+  UI.rsel = id;
+  if(act === 'edit'){ render(); startREdit(id); }
+  else if(act === 'foco') rFoco(id);
+  else if(act === 'park') rPark(id);
+  else if(act === 'done') rResolve(id);
+  else if(act === 'task') rToTask(id);
 }
 board.addEventListener('keydown', e => {
-  if(!e.target.classList || !e.target.classList.contains('add-tema')) return;
-  if(e.key === 'Enter'){ e.preventDefault(); const name = e.target.value.trim(), bk = UI.addTema; UI.addTema = null; name ? createTema(name, bk) : render(); }
-  else if(e.key === 'Escape'){ e.preventDefault(); e.stopPropagation(); UI.addTema = null; render(); }
+  const t = e.target; if(!t.classList || !t.classList.contains('aadd')) return;
+  if(e.key === 'Enter'){ e.preventDefault(); const v = t.value; if(v.trim()){ t.value = ''; rAdd(t.dataset.bkey, v); } }
+  else if(e.key === 'Escape'){ e.preventDefault(); e.stopPropagation(); t.blur(); }
 });
-board.addEventListener('focusout', e => { if(e.target.classList && e.target.classList.contains('add-tema') && UI.addTema){ UI.addTema = null; render(); } });
 board.addEventListener('click', e => {
-  const pa = e.target.closest('[data-pact]');
-  if(pa){
-    if(pa.dataset.pact === 'addtema'){ UI.addTema = pa.dataset.block; render(); }
-    else if(pa.dataset.pact === 'addtask'){
-      const m = tema(pa.dataset.tema); if(!m) return;
-      let txt = '^' + m.name.replace(/\s+/g,'_') + ' ';
-      if(m.projectId) txt += '#' + ((project(m.projectId) || {}).name || '').replace(/\s+/g,'_') + ' ';
-      quick.value = txt; quick.focus(); quick.setSelectionRange(txt.length, txt.length);
-    }
-    return;
-  }
+  if(UI.view === 'radar'){ radarClick(e); return; }
   const row = e.target.closest('[data-id]'); if(!row) return;
   const id = row.dataset.id, a = e.target.closest('[data-act]');
   if(ED && ED.inp.contains(e.target)) return;
@@ -1258,34 +1278,43 @@ board.addEventListener('click', e => {
   if(act === 'person'){ render(); popPerson(document.querySelector(`[data-id="${id}"] [data-act="person"]`), id); }
   else if(act === 'proj'){ render(); popProject(document.querySelector(`[data-id="${id}"] [data-act="proj"]`), id); }
   else if(act === 'date'){ render(); popDate(document.querySelector(`[data-id="${id}"] [data-act="date"]`), id); }
-  else if(act === 'tema'){ render(); popTema(document.querySelector(`[data-id="${id}"] [data-act="tema"]`), id); }
   else action(act, id);
 });
 board.addEventListener('dblclick', e => {
+  if(UI.view === 'radar'){
+    const ai = e.target.closest('[data-aid]');
+    if(!ai || e.target.closest('.st,.acts,.aadd')) return;
+    if(RED){ RED.done = true; RED = null; }
+    UI.rsel = ai.dataset.aid; render(); openRPanel(ai.dataset.aid); return;
+  }
   const row = e.target.closest('[data-id]');
-  if(!row || e.target.closest('.ck,.chip,.dtxt,.c-btns,.hb')) return;
+  if(!row || e.target.closest('.chip,.dtxt,.c-btns,.hb')) return;
   if(ED){ ED.done = true; ED = null; acClose(); }
   UI.sel = row.dataset.id; render(); openPanel(row.dataset.id);
 });
 /* arrastre */
 function clearMarks(){ board.querySelectorAll('.mark-before,.mark-after,.over').forEach(x => x.classList.remove('mark-before','mark-after','over')); }
 board.addEventListener('dragstart', e => {
+  const ai = e.target.closest && e.target.closest('[data-aid]');
+  if(ai){ UI.rdrag = ai.dataset.aid; e.dataTransfer.setData('text/plain', UI.rdrag); e.dataTransfer.effectAllowed = 'move'; setTimeout(() => ai.classList.add('dragging'), 0); return; }
   const r = e.target.closest && e.target.closest('[data-id]'); if(!r) return;
   UI.drag = r.dataset.id; e.dataTransfer.setData('text/plain', UI.drag); e.dataTransfer.effectAllowed = 'move';
   setTimeout(() => r.classList.add('dragging'), 0);
 });
-board.addEventListener('dragend', () => { UI.drag = null; clearMarks(); board.querySelectorAll('.dragging').forEach(x => x.classList.remove('dragging')); });
+board.addEventListener('dragend', () => { UI.drag = null; UI.rdrag = null; clearMarks(); board.querySelectorAll('.dragging').forEach(x => x.classList.remove('dragging')); });
 board.addEventListener('dragover', e => {
-  const z = e.target.closest('[data-drop]'); if(!UI.drag || !z) return;
-  e.preventDefault(); clearMarks();
-  if(z.dataset.drop === 'blk'){
-    const tm = e.target.closest('.tm[data-tema]');
-    (tm || z).classList.add('over');
+  if(UI.rdrag){
+    const z = e.target.closest('[data-rdrop]'); if(!z) return;
+    e.preventDefault(); clearMarks(); z.classList.add('over');
+    const ai = e.target.closest('[data-aid]');
+    if(ai && ai.dataset.aid !== UI.rdrag){ const r = ai.getBoundingClientRect(); ai.classList.add(e.clientY < r.top + r.height/2 ? 'mark-before' : 'mark-after'); }
     const br = board.getBoundingClientRect(), edge = 70;
     if(e.clientY < br.top + edge) board.scrollTop -= Math.max(8, (br.top + edge - e.clientY) / 3);
     else if(e.clientY > br.bottom - edge) board.scrollTop += Math.max(8, (e.clientY - (br.bottom - edge)) / 3);
     return;
   }
+  const z = e.target.closest('[data-drop]'); if(!UI.drag || !z) return;
+  e.preventDefault(); clearMarks();
   z.classList.add('over');
   const list = z.querySelector('.list');
   if(list){
@@ -1300,14 +1329,20 @@ board.addEventListener('dragover', e => {
   }
 });
 board.addEventListener('drop', e => {
+  if(UI.rdrag){
+    const z = e.target.closest('[data-rdrop]'); if(!z) return;
+    e.preventDefault();
+    const id = UI.rdrag, ai = e.target.closest('[data-aid]'); let before = null;
+    if(ai && ai.dataset.aid !== id){
+      const r = ai.getBoundingClientRect();
+      if(e.clientY < r.top + r.height/2) before = ai.dataset.aid;
+      else{ let n = ai.nextElementSibling; while(n && !n.dataset.aid) n = n.nextElementSibling; if(n && n.dataset.aid === id){ n = n.nextElementSibling; while(n && !n.dataset.aid) n = n.nextElementSibling; } before = n ? n.dataset.aid : null; }
+    }
+    UI.rdrag = null; clearMarks();
+    rDrop(id, z.dataset.rdrop, before); return;
+  }
   const z = e.target.closest('[data-drop]'); if(!UI.drag || !z) return;
   e.preventDefault();
-  if(z.dataset.drop === 'blk'){
-    const tm = e.target.closest('.tm[data-tema]'), id0 = UI.drag;
-    UI.drag = null; clearMarks();
-    moveToBlock(id0, z.dataset.bkey, tm ? tm.dataset.tema : null);
-    return;
-  }
   const id = UI.drag; let before = null;
   const card = e.target.closest('.card');
   if(z.dataset.drop === 'today' && card && card.dataset.id !== id){
@@ -1323,7 +1358,9 @@ board.addEventListener('drop', e => {
 document.addEventListener('keydown', e => {
   const k = e.key, tg = e.target;
   if(e.altKey && !e.ctrlKey && !e.metaKey && (k === 'ArrowUp' || k === 'ArrowDown')){
-    if(UI.modal || /^(INPUT|TEXTAREA|SELECT)$/.test(tg.tagName) || tg.isContentEditable || !UI.sel) return;
+    const cur = UI.view === 'radar' ? UI.rsel : UI.sel;
+    if(UI.modal || /^(INPUT|TEXTAREA|SELECT)$/.test(tg.tagName) || tg.isContentEditable || !cur) return;
+    if(UI.view === 'radar'){ if(rMove(cur, k === 'ArrowUp' ? -1 : 1)) e.preventDefault(); return; }
     if(moveInToday(UI.sel, k === 'ArrowUp' ? 'up' : 'down')) e.preventDefault();
     return;
   }
@@ -1333,19 +1370,35 @@ document.addEventListener('keydown', e => {
     if(!acClosed()){ acClose(); return; }
     if(popEl.style.display === 'block'){ closePop(); return; }
     if(UI.modal){ closeModal(); return; }
-    if(UI.panel){ closePanel(); return; }
+    if(UI.panel || UI.rpanel){ closePanel(); return; }
     if(typing){ tg.blur(); return; }
-    if(UI.sel){ UI.sel = null; render(); }
+    if(UI.view === 'radar'){ if(UI.rsel){ UI.rsel = null; render(); } }
+    else if(UI.sel){ UI.sel = null; render(); }
     return;
   }
   if(typing || UI.modal) return;
   const lk = k.toLowerCase();
   if(k === '1'){ setView('dia'); return; }
-  if(k === '2'){ setView('proyectos'); return; }
-  if(lk === 'n'){ e.preventDefault(); quick.focus(); return; }
+  if(k === '2'){ setView('radar'); return; }
+  if(lk === 'n'){ e.preventDefault(); setView('dia'); quick.focus(); return; }
   if(k === '/'){ e.preventDefault(); search.focus(); return; }
   if(k === '?'){ e.preventDefault(); openKeys(); return; }
   if(tg.tagName === 'BUTTON' && (k === 'Enter' || k === ' ')) return;
+  if(UI.view === 'radar'){
+    if(k === 'ArrowDown' || k === 'ArrowUp'){
+      if(!UI.rorder.length) return;
+      e.preventDefault();
+      const i = UI.rorder.indexOf(UI.rsel);
+      UI.rsel = UI.rorder[i < 0 ? 0 : Math.max(0, Math.min(UI.rorder.length-1, i + (k === 'ArrowDown' ? 1 : -1)))];
+      render(); return;
+    }
+    const rid = UI.rsel; if(!rid || !rItem(rid)) return;
+    if(lk === 'f'){ e.preventDefault(); rFoco(rid); }
+    else if(lk === 'a'){ e.preventDefault(); rPark(rid); }
+    else if(lk === 'x' || k === 'Delete'){ e.preventDefault(); rResolve(rid); }
+    else if(k === 'Enter'){ e.preventDefault(); startREdit(rid); }
+    return;
+  }
   if(k === 'ArrowDown' || k === 'ArrowUp'){
     if(!UI.order.length) return;
     e.preventDefault();
@@ -1364,7 +1417,7 @@ document.addEventListener('keydown', e => {
 
 /* cambio de día */
 let lastDay = today();
-function tick(){ if(today() !== lastDay){ lastDay = today(); if(!ED) render(); } }
+function tick(){ if(today() !== lastDay){ lastDay = today(); if(!ED && !RED && !(document.activeElement && document.activeElement.classList.contains('aadd'))) render(); } }
 setInterval(tick, 60000);
 window.addEventListener('focus', tick);
 

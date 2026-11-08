@@ -55,7 +55,7 @@ Programas (con `color`), proyectos (con `programId` y `fav`), personas (`me` sie
 
 **Visual:**
 - Estilo igualado a la maqueta del repo.
-- **Punto de color** delante del título con el color del **programa**. Si no hay proyecto, es rosa discontinuo y al hacer clic abre el desplegable de proyectos.
+- **Barra lateral** de la tarjeta o fila con el color del **programa**. Si no hay proyecto, la barra es rosa y el chip punteado "proyecto" abre el desplegable de proyectos.
 - **Chip de proyecto** como etiqueta de color, con el color del programa. Va antes que el de persona. El chip de persona "Yo" es discreto.
 - Urgente: barra roja a la izquierda. Tarea de otro o reclamo: fondo ámbar.
 - Fechas futuras en azul, atrasadas en rojo.
@@ -78,12 +78,25 @@ Lo que queda, recogido en `CLAUDE.md`:
 - **Radar es una lista, no cajas**: una fila por bloque, siempre las mismas; un proyecto sin asuntos es una línea; uno con siete, siete líneas.
 - **Temas de color**: Gris (claro) y Medio (oscuro), elegidos entre seis candidatos. Tokens en la tabla de `CLAUDE.md`.
 
-Maqueta de referencia: `maqueta-radar.html` (datos de ejemplo; pestañas Día/Radar y conmutador de tema). `maqueta-proyectos.html` queda obsoleta y se borra con la implementación.
+Maqueta de referencia: `maqueta-radar.html` (datos de ejemplo; pestañas Día/Radar y conmutador de tema). `maqueta-proyectos.html` se borró con la implementación.
 
-## 6. Encargo de implementación (pendiente)
+## 6. Encargo de implementación (hecho el 8/11/2026)
 Partir del `index.html` actual, que ya tiene temas, vista Proyectos y look Color en claro/oscuro. Cambios, en este orden:
 1. **Quitar temas**: entidad `temas`, `temaId` y `programId` en tareas, token `^`, chip de tema, sección Temas de Ajustes, vista Proyectos y su arrastre. Migración: un `tareas.json` con `temas`/`temaId`/`programId` en tareas carga y, al guardar, los descarta; opcionalmente convertir cada tema con tareas abiertas en un asunto del radar con el mismo nombre y bloque.
 2. **Modelo `radar`** y persistencia, purga de resueltos antiguos junto con las hechas.
 3. **Vista Radar** según `CLAUDE.md` y la maqueta: filas fijas, asuntos, "+ asunto", foco/aparcar/resuelto, resueltos plegados, `→ tarea`, edición en sitio y panel lateral, teclado y arrastre, filtros Todo/★ Foco/programas, buscador.
 4. **Temas Gris y Medio**: sustituir los tokens actuales por la tabla de `CLAUDE.md`; mantener `settings.theme` `light`/`dark`.
 5. Borrar `maqueta-proyectos.html`. Probar en Chromium sin errores de consola y, por parte del usuario, en Edge con `tareas.json` real.
+
+### Estado de la implementación
+Hechos los cinco puntos en `index.html`, en una rama aparte para revisar en un PR:
+1. **Temas fuera**: entidad `temas`, `temaId`/`programId` en tareas, token `^`, chip de tema, Ajustes de temas y vista Proyectos con su arrastre. Un `tareas.json` con esos campos carga sin error, los descarta al guardar y convierte cada tema con tareas abiertas en un asunto del radar (mismo nombre, nota y bloque).
+2. **Modelo `radar`** (`id`, `programId`, `projectId`, `text`, `note`, `order`, `foco`, `parked`, `createdAt`, `doneAt`) con persistencia; "Purgar" de Ajustes borra también los asuntos resueltos de más de 90 días.
+3. **Vista Radar**: filas fijas por bloque, `+ asunto`, foco ★, aparcar, resuelto y resueltos plegados (clic reabre), `→ tarea` (solo rellena la línea rápida con `#Proyecto`), edición en sitio, panel lateral, teclado (`F A X`, `Alt+↑/↓`, `Intro`, `Esc`, flechas), arrastre (reordena o mueve de bloque), filtros Todo / ★ Foco / programas y buscador. Teclas `1` y `2`; la línea rápida se oculta en Radar. Sin avisos.
+4. **Temas de color** Gris (`light`) y Medio (`dark`) con los tokens de `CLAUDE.md`, incluidas las reglas de chips.
+5. `maqueta-proyectos.html` borrada. Probado en Chromium sin errores de consola: migración, las dos vistas, los dos temas, arrastre, teclado, panel, filtros y buscador. **Falta probar en Edge con un `tareas.json` real.**
+
+Detalles:
+- Alt+↑/↓ en Radar solo reordena entre asuntos del mismo grupo (foco, normales o aparcados), porque la vista los agrupa en ese orden.
+- Aparcar quita el foco y marcar foco quita el aparcado.
+- Soltar un asunto sobre otro lo coloca antes o después según la mitad de la fila; soltarlo en el hueco de un bloque lo añade al final.
