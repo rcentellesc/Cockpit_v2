@@ -791,6 +791,18 @@ function setDone(id, v){
   t.done = v; t.doneAt = v ? new Date().toISOString() : null;
 }
 function neighbor(id){ const i = UI.order.indexOf(id); return UI.order[i+1] || UI.order[i-1] || null; }
+function taskToRadar(id){
+  const t = taskById(id); if(!t) return;
+  const pr = project(t.projectId), bkey = pr ? 'pj:' + pr.id : 'g';
+  const who = t.personId !== 'me' ? person(t.personId).name : '';
+  const note = [who && 'de ' + who, (t.note || '').trim()].filter(Boolean).join(' · ');
+  const r = {id:uid('r'), programId:null, projectId:null, text:t.title, note, order:0, foco:false, parked:false, createdAt:today(), doneAt:null};
+  rApply(r, bkey);
+  r.order = rOpenOf(bkey).reduce((m,x) => Math.max(m, x.order || 0), -1) + 1;
+  const nb = neighbor(id);
+  S.radar.push(r); S.tasks = S.tasks.filter(x => x.id !== id); UI.sel = nb;
+  commit(); toast('Pasada al Radar · ' + rBlockName(bkey));
+}
 function doDone(id){ const nb = neighbor(id); setDone(id,true); UI.sel = nb; commit(); }
 function reorderToday(id, beforeId){
   const td = today();
@@ -1012,7 +1024,7 @@ function openPanel(id){
     <label class="ck"><input type="checkbox" data-f="waiting"${isWait(t) ? ' checked' : ''}${t.personId !== 'me' && t.type !== 'urgente' ? ' disabled title="Las tareas de otros siempre esperan"' : ''}> Esperando</label>
     ${isWait(t) ? `<label>Reclamar el<input type="date" data-f="remindOn" value="${remindOf(t)}"></label>` : ''}
     <label>Nota<textarea data-f="note">${esc(t.note)}</textarea></label>
-    <div class="frow"><button class="btn" data-p="done">✓ Hecha</button><span class="sp"></span><button class="btn danger" data-p="del">Borrar</button></div>`;
+    <div class="frow"><button class="btn" data-p="done">✓ Hecha</button><button class="btn" data-p="radar" title="Convertir en asunto del Radar (R)">→ Radar</button><span class="sp"></span><button class="btn danger" data-p="del">Borrar</button></div>`;
   panelEl.style.display = 'flex';
 }
 function openRPanel(id){
@@ -1071,6 +1083,7 @@ panelEl.addEventListener('click', e => {
   const id = UI.panel;
   if(b.dataset.p === 'close') closePanel();
   else if(b.dataset.p === 'done'){ closePanel(); doDone(id); }
+  else if(b.dataset.p === 'radar'){ closePanel(); taskToRadar(id); }
   else if(b.dataset.p === 'del' && confirm('¿Borrar esta tarea?')){
     closePanel(); S.tasks = S.tasks.filter(t => t.id !== id); UI.sel = null; commit();
   }
@@ -1091,7 +1104,7 @@ function openDone(){
 }
 function openKeys(){
   UI.modal = 'keys';
-  const rows = [['N','Enfocar línea rápida'],['/','Buscar'],['?','Esta tabla'],['1 / 2','Vista Día / Radar'],['↑ ↓','Seleccionar fila'],['H','Mover a Hoy'],['M','Mañana'],['S','Esta semana (viernes)'],['P','Próxima semana (lunes)'],['L','Más adelante (+30 días)'],['E','Esperando'],['X / Supr','Hecha'],['U','Marcar / quitar urgente'],['Alt + ↑ ↓','Subir / bajar la tarea dentro de Hoy'],['A','Subir la tarea al principio de Hoy'],['Intro','Abrir panel de edición'],['Esc','Deseleccionar / cerrar'],['Radar: F','Foco ★'],['Radar: A','Aparcar / reactivar'],['Radar: X','Resuelto'],['Radar: Alt + ↑ ↓','Reordenar en su bloque'],['Radar: Intro','Editar el asunto']];
+  const rows = [['N','Enfocar línea rápida'],['/','Buscar'],['?','Esta tabla'],['1 / 2','Vista Día / Radar'],['↑ ↓','Seleccionar fila'],['H','Mover a Hoy'],['M','Mañana'],['S','Esta semana (viernes)'],['P','Próxima semana (lunes)'],['L','Más adelante (+30 días)'],['E','Esperando'],['X / Supr','Hecha'],['R','Convertir la tarea en asunto del Radar'],['U','Marcar / quitar urgente'],['Alt + ↑ ↓','Subir / bajar la tarea dentro de Hoy'],['A','Subir la tarea al principio de Hoy'],['Intro','Abrir panel de edición'],['Esc','Deseleccionar / cerrar'],['Radar: F','Foco ★'],['Radar: A','Aparcar / reactivar'],['Radar: X','Resuelto'],['Radar: Alt + ↑ ↓','Reordenar en su bloque'],['Radar: Intro','Editar el asunto']];
   showModal(`<h2>Atajos${closeBtn}</h2><table class="keys">${rows.map(r => `<tr><td><kbd>${r[0]}</kbd></td><td>${r[1]}</td></tr>`).join('')}</table>`);
 }
 function openSettings(){
@@ -1412,6 +1425,7 @@ document.addEventListener('keydown', e => {
   else if(lk === 'a'){ if(moveInToday(id, 'top')) e.preventDefault(); }
   else if(lk === 'u'){ e.preventDefault(); const t = taskById(id); setUrgent(t, t.type !== 'urgente'); commit(); }
   else if(lk === 'x' || k === 'Delete'){ e.preventDefault(); doDone(id); }
+  else if(lk === 'r'){ e.preventDefault(); taskToRadar(id); }
   else if(k === 'Enter'){ e.preventDefault(); openPanel(id); }
 });
 
