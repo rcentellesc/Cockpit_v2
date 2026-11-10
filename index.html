@@ -593,9 +593,9 @@ function rDrop(id, bkey, beforeId){
 }
 function rToTask(id){
   const r = rItem(id); if(!r) return;
-  const txt = r.projectId ? '#' + ((project(r.projectId) || {}).name || '').replace(/\s+/g,'_') + ' ' : '';
-  setView('dia');
-  quick.value = txt; quick.focus(); quick.setSelectionRange(txt.length, txt.length);
+  const t = {id:uid('t'), title:r.text, personId:'me', projectId:r.projectId || null, type:'hacer', date:defaultDate(), waiting:false, remindOn:null,
+    note:'', order:maxOrder()+1, done:false, doneAt:null, createdAt:new Date().toISOString()};
+  S.tasks.push(t); commit(); toast('Tarea creada · ' + fmtDate(t.date));
 }
 function renderRadar(td){
   const open = S.radar.filter(r => !r.doneAt), rf = UI.rf;
@@ -607,7 +607,7 @@ function renderRadar(td){
       <button class="st${r.foco ? ' on' : ''}" data-ra="foco" aria-label="Foco" title="Foco (F)">${r.foco ? '★' : '☆'}</button>
       <span class="tx" data-ra="edit" title="Clic para editar">${esc(r.text)}${r.note ? `<span class="nt">${esc(r.note)}</span>` : ''}</span>
       <span class="since" title="En el radar desde">${dm(r.createdAt)}</span>
-      <span class="acts"><button data-ra="task" title="Crear una tarea con este proyecto">→ tarea</button><button data-ra="park" title="Aparcar (A)">${r.parked ? 'reactivar' : 'aparcar'}</button><button data-ra="done" title="Resuelto (X)">✓ resuelto</button></span></div>`;
+      <span class="acts"><button data-ra="task" title="Crear una tarea con el texto de este asunto">→ tarea</button><button data-ra="park" title="Aparcar (A)">${r.parked ? 'reactivar' : 'aparcar'}</button><button data-ra="done" title="Resuelto (X)">✓ resuelto</button></span></div>`;
   const prow = (bkey, title, sub, color, transv) => {
     const all = S.radar.filter(r => rKey(r) === bkey), o = rSort(all.filter(r => !r.doneAt)), d = all.filter(r => r.doneAt).sort((a,b) => b.doneAt.localeCompare(a.doneAt));
     const nf = o.filter(r => r.foco && !r.parked).length, empty = !o.length;
@@ -794,14 +794,10 @@ function neighbor(id){ const i = UI.order.indexOf(id); return UI.order[i+1] || U
 function taskToRadar(id){
   const t = taskById(id); if(!t) return;
   const pr = project(t.projectId), bkey = pr ? 'pj:' + pr.id : 'g';
-  const who = t.personId !== 'me' ? person(t.personId).name : '';
-  const note = [who && 'de ' + who, (t.note || '').trim()].filter(Boolean).join(' · ');
-  const r = {id:uid('r'), programId:null, projectId:null, text:t.title, note, order:0, foco:false, parked:false, createdAt:today(), doneAt:null};
+  const r = {id:uid('r'), programId:null, projectId:null, text:t.title, note:'', order:0, foco:false, parked:false, createdAt:today(), doneAt:null};
   rApply(r, bkey);
   r.order = rOpenOf(bkey).reduce((m,x) => Math.max(m, x.order || 0), -1) + 1;
-  const nb = neighbor(id);
-  S.radar.push(r); S.tasks = S.tasks.filter(x => x.id !== id); UI.sel = nb;
-  commit(); toast('Pasada al Radar · ' + rBlockName(bkey));
+  S.radar.push(r); commit(); toast('Asunto creado');
 }
 function doDone(id){ const nb = neighbor(id); setDone(id,true); UI.sel = nb; commit(); }
 function reorderToday(id, beforeId){
@@ -1024,7 +1020,7 @@ function openPanel(id){
     <label class="ck"><input type="checkbox" data-f="waiting"${isWait(t) ? ' checked' : ''}${t.personId !== 'me' && t.type !== 'urgente' ? ' disabled title="Las tareas de otros siempre esperan"' : ''}> Esperando</label>
     ${isWait(t) ? `<label>Reclamar el<input type="date" data-f="remindOn" value="${remindOf(t)}"></label>` : ''}
     <label>Nota<textarea data-f="note">${esc(t.note)}</textarea></label>
-    <div class="frow"><button class="btn" data-p="done">✓ Hecha</button><button class="btn" data-p="radar" title="Convertir en asunto del Radar (R)">→ Radar</button><span class="sp"></span><button class="btn danger" data-p="del">Borrar</button></div>`;
+    <div class="frow"><button class="btn" data-p="done">✓ Hecha</button><button class="btn" data-p="radar" title="Crear un asunto en el Radar con este título (R)">→ Radar</button><span class="sp"></span><button class="btn danger" data-p="del">Borrar</button></div>`;
   panelEl.style.display = 'flex';
 }
 function openRPanel(id){
@@ -1083,7 +1079,7 @@ panelEl.addEventListener('click', e => {
   const id = UI.panel;
   if(b.dataset.p === 'close') closePanel();
   else if(b.dataset.p === 'done'){ closePanel(); doDone(id); }
-  else if(b.dataset.p === 'radar'){ closePanel(); taskToRadar(id); }
+  else if(b.dataset.p === 'radar') taskToRadar(id);
   else if(b.dataset.p === 'del' && confirm('¿Borrar esta tarea?')){
     closePanel(); S.tasks = S.tasks.filter(t => t.id !== id); UI.sel = null; commit();
   }
@@ -1104,7 +1100,7 @@ function openDone(){
 }
 function openKeys(){
   UI.modal = 'keys';
-  const rows = [['N','Enfocar línea rápida'],['/','Buscar'],['?','Esta tabla'],['1 / 2','Vista Día / Radar'],['↑ ↓','Seleccionar fila'],['H','Mover a Hoy'],['M','Mañana'],['S','Esta semana (viernes)'],['P','Próxima semana (lunes)'],['L','Más adelante (+30 días)'],['E','Esperando'],['X / Supr','Hecha'],['R','Convertir la tarea en asunto del Radar'],['U','Marcar / quitar urgente'],['Alt + ↑ ↓','Subir / bajar la tarea dentro de Hoy'],['A','Subir la tarea al principio de Hoy'],['Intro','Abrir panel de edición'],['Esc','Deseleccionar / cerrar'],['Radar: F','Foco ★'],['Radar: A','Aparcar / reactivar'],['Radar: X','Resuelto'],['Radar: Alt + ↑ ↓','Reordenar en su bloque'],['Radar: Intro','Editar el asunto']];
+  const rows = [['N','Enfocar línea rápida'],['/','Buscar'],['?','Esta tabla'],['1 / 2','Vista Día / Radar'],['↑ ↓','Seleccionar fila'],['H','Mover a Hoy'],['M','Mañana'],['S','Esta semana (viernes)'],['P','Próxima semana (lunes)'],['L','Más adelante (+30 días)'],['E','Esperando'],['X / Supr','Hecha'],['R','Crear un asunto en el Radar con el título de la tarea'],['U','Marcar / quitar urgente'],['Alt + ↑ ↓','Subir / bajar la tarea dentro de Hoy'],['A','Subir la tarea al principio de Hoy'],['Intro','Abrir panel de edición'],['Esc','Deseleccionar / cerrar'],['Radar: F','Foco ★'],['Radar: A','Aparcar / reactivar'],['Radar: X','Resuelto'],['Radar: Alt + ↑ ↓','Reordenar en su bloque'],['Radar: Intro','Editar el asunto']];
   showModal(`<h2>Atajos${closeBtn}</h2><table class="keys">${rows.map(r => `<tr><td><kbd>${r[0]}</kbd></td><td>${r[1]}</td></tr>`).join('')}</table>`);
 }
 function openSettings(){
